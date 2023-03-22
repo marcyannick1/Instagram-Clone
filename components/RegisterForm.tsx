@@ -1,93 +1,86 @@
 import {
-    Flex,
-    Box,
-    FormControl,
-    FormLabel,
-    Input,
-    InputGroup,
-    HStack,
-    InputRightElement,
-    Stack,
-    Button,
-    Heading,
+    Center,
     Text,
-    useColorModeValue,
+    Input,
+    FormLabel,
+    Heading,
+    Button,
     Link,
-  } from '@chakra-ui/react';
-  import { useState } from 'react';
-  import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
-  
-  export default function RegisterForm() {
-    const [showPassword, setShowPassword] = useState(false);
-  
+} from "@chakra-ui/react";
+import axios from "axios";
+import { useState } from "react";
+
+function RegisterForm() {
+    const [email, setEmail] = useState("");
+    const [fullName, setFullName] = useState("");
+    const [username, setUserName] = useState("");
+    const [password, setPassword] = useState("");
+
+    function Register(e: any) {
+        e.preventDefault();
+
+        axios({
+            method: "post",
+            url: "/api/register",
+            data: {
+                email: email,
+                fullname: fullName,
+                username: username,
+                password : password
+            },
+        }).then((response) => console.log(response));
+    }
+
     return (
-      <Flex
-        minH={'100vh'}
-        align={'center'}
-        justify={'center'}
-        bg={useColorModeValue('gray.50', 'gray.800')}>
-        <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
-          <Stack align={'center'}>
-            <Heading fontSize={'4xl'} textAlign={'center'}>
-              Inscription
-            </Heading>
-            <Text fontSize={'lg'} color={'gray.600'}>
-              to enjoy all of our cool features ✌️
-            </Text>
-          </Stack>
-          <Box
-            rounded={'lg'}
-            bg={useColorModeValue('white', 'gray.700')}
-            boxShadow={'lg'}
-            p={8}>
-            <Stack spacing={4}>
-              <FormControl id="email" isRequired>
+        <Center flexDir="column" h="100vh">
+            <Heading mb={10}>Inscription</Heading>
+            <form onSubmit={Register}>
                 <FormLabel>Email</FormLabel>
-                <Input type="email" />
-              </FormControl>
-              <FormControl id="email" isRequired>
+                <Input
+                    type="email"
+                    mb={5}
+                    value={email}
+                    onChange={(e: any) => {
+                        setEmail(e.target.value);
+                    }}
+                />
                 <FormLabel>Full name</FormLabel>
-                <Input type="email" />
-              </FormControl>
-              <FormControl id="email" isRequired>
+                <Input
+                    type="text"
+                    value={fullName}
+                    onChange={(e: any) => {
+                        setFullName(e.target.value);
+                    }}
+                    mb={5}
+                />
                 <FormLabel>Username</FormLabel>
-                <Input type="email" />
-              </FormControl>
-              <FormControl id="password" isRequired>
-                <FormLabel>Password</FormLabel>
-                <InputGroup>
-                  <Input type={showPassword ? 'text' : 'password'} />
-                  <InputRightElement h={'full'}>
-                    <Button
-                      variant={'ghost'}
-                      onClick={() =>
-                        setShowPassword((showPassword) => !showPassword)
-                      }>
-                      {showPassword ? <ViewIcon /> : <ViewOffIcon />}
-                    </Button>
-                  </InputRightElement>
-                </InputGroup>
-              </FormControl>
-              <Stack spacing={10} pt={2}>
-                <Button
-                  loadingText="Submitting"
-                  size="lg"
-                  bg={'blue.400'}
-                  color={'white'}
-                  _hover={{
-                    bg: 'blue.500',
-                  }}>
-                  Sign up
+                <Input
+                    type="text"
+                    mb={5}
+                    value={username}
+                    onChange={(e: any) => {
+                        setUserName(e.target.value);
+                    }}
+                />
+                <FormLabel>Mot de passe</FormLabel>
+                <Input
+                    type="password"
+                    mb={5}
+                    value={password}
+                    onChange={(e: any) => {
+                        setPassword(e.target.value);
+                    }}
+                />
+                <Button type="submit" w="full">
+                    {"S'inscrire"}
                 </Button>
-              </Stack>
-              <Stack pt={6}>
-                <Text align={'center'}>
-                  Already a user? <Link href='/login' color={'blue.400'}>Login</Link>
-                </Text>
-              </Stack>
-            </Stack>
-          </Box>
-        </Stack>
-      </Flex>
+            </form>
+            <Text mt={5}>
+                Vous avez déjà un compte?{" "}
+                <Link href="/login">Se connecter</Link>
+            </Text>
+        </Center>
     );
-  }
+}
+
+export default RegisterForm;
