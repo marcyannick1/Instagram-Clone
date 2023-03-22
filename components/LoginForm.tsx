@@ -7,15 +7,19 @@ import {
     Heading,
     Button,
     Link,
+    Alert,
+    AlertIcon,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useState } from "react";
-import { useRouter } from 'next/router'
+import { useRouter } from "next/router";
 
 function LoginForm() {
+    const router = useRouter();
+    
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const router = useRouter()
+    const [error, setError] = useState("");
 
     function Login(e: any) {
         e.preventDefault();
@@ -27,9 +31,13 @@ function LoginForm() {
                 email: email,
                 password: password,
             },
-        }).then(function () {
+        })
+        .then(function () {
             router.push("/");
-        }).catch((err) => console.log(err.response));
+        })
+        .catch((err) => {
+            setError(err.response.data)
+        });
     }
 
     return (
@@ -62,6 +70,12 @@ function LoginForm() {
                 {"Vous n'avez pas de compte? "}
                 <Link href="/register">{"S'inscrire"}</Link>
             </Text>
+
+            {error &&
+            <Alert status="error" w={300}>
+                <AlertIcon />
+                {error}
+            </Alert>}
         </Center>
     );
 }

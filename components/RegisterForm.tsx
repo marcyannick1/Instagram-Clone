@@ -9,8 +9,12 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useState } from "react";
+import { useRouter } from "next/router";
+
 
 function RegisterForm() {
+    const router = useRouter();
+
     const [email, setEmail] = useState("");
     const [fullName, setFullName] = useState("");
     const [username, setUserName] = useState("");
@@ -28,7 +32,9 @@ function RegisterForm() {
                 username: username,
                 password : password
             },
-        }).then((response) => console.log(response));
+        }).then((response) => {
+            router.push("/login");
+        });
     }
 
     return (
