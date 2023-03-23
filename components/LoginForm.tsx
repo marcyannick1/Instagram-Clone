@@ -70,6 +70,7 @@ function LoginForm() {
                 {"Vous n'avez pas de compte? "}
                 <Link href="/register">{"S'inscrire"}</Link>
             </Text>
+            <Link href="/mpo">Mot de passe oublié</Link>
 
             {error &&
             <Alert status="error" w={300}>
