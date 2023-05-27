@@ -6,7 +6,7 @@ export async function generateToken(data: any, secret: string, exp:number | stri
     return token;
 }
 
-export async function verifyToken(token: any, secret: string) {
+export async function verifyToken(token: any, secret: string): Promise<any> {
     const tokenPayload = jwt.verify(token, secret);
 
     return tokenPayload;

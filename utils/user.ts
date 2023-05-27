@@ -54,3 +54,21 @@ export async function getSuiviesCount(userId: number): Promise<number> {
 
     return followersCount;
 }
+
+export async function isFollowed(
+    suscriberId: number,
+    suscriberToId: number
+): Promise<any> {
+    const bool = await prisma.suscribtions.findMany({
+        where: {
+            AND: [
+                {
+                    suscriberId: suscriberId,
+                    suscriberToId: suscriberToId,
+                },
+            ],
+        },
+    });
+
+    return bool.length !== 0
+}
