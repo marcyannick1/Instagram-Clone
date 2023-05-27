@@ -11,9 +11,71 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String
-  name     String
-  email    String @unique
-  password String
+  id               Int            @id @default(autoincrement())
+  username         String         @unique
+  name             String
+  email            String         @unique
+  password         String
+  photo            String?
+  bio              String?
+  suivies          Suscribtions[] @relation("Suscriber")
+  followers        Suscribtions[] @relation("SuscriberTo")
+  posts            Posts[]
+  likes            Likes[]
+  comments         Comments[]
+  Favoris          Favoris[]
+  messagesSend     Messages[]     @relation("Sender")
+  messagesReceived Messages[]     @relation("Receiver")
+}
+
+model Suscribtions {
+  id            Int  @id @default(autoincrement())
+  suscriber     User @relation("Suscriber", fields: [suscriberId], references: [id])
+  suscriberId   Int
+  suscriberTo   User @relation("SuscriberTo", fields: [suscriberToId], references: [id])
+  suscriberToId Int
+}
+
+model Posts {
+  id          Int        @id @default(autoincrement())
+  user        User       @relation(fields: [userId], references: [id])
+  userId      Int
+  date        DateTime
+  media       String
+  description String?
+  likes       Likes[]
+  comments    Comments[]
+  Favoris     Favoris[]
+}
+
+model Likes {
+  id     Int   @id @default(autoincrement())
+  user   User  @relation(fields: [userId], references: [id])
+  userId Int
+  post   Posts @relation(fields: [postId], references: [id])
+  postId Int
+}
+
+model Comments {
+  id     Int   @id @default(autoincrement())
+  user   User  @relation(fields: [userId], references: [id])
+  userId Int
+  post   Posts @relation(fields: [postId], references: [id])
+  postId Int
+}
+
+model Favoris {
+  id     Int   @id @default(autoincrement())
+  user   User  @relation(fields: [userId], references: [id])
+  userId Int
+  post   Posts @relation(fields: [postId], references: [id])
+  postId Int
+}
+
+model Messages {
+  id         Int  @id @default(autoincrement())
+  sender     User @relation("Sender", fields: [senderId], references: [id])
+  senderId   Int
+  receiver   User @relation("Receiver", fields: [receiverId], references: [id])
+  receiverId Int
 }
