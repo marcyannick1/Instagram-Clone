@@ -59,7 +59,7 @@ export async function isFollowed(
     suscriberId: number,
     suscriberToId: number
 ): Promise<any> {
-    const bool = await prisma.suscribtions.findMany({
+    const bool = await prisma.suscribtions.count({
         where: {
             AND: [
                 {
@@ -70,5 +70,27 @@ export async function isFollowed(
         },
     });
 
-    return bool.length !== 0
+    return bool !== 0
+}
+
+export async function createSuscribtion(suscriberId: number, suscriberToId: number) :Promise<any> {
+    const subscribtion = await prisma.suscribtions.create({
+        data : {
+            suscriberId : suscriberId,
+            suscriberToId : suscriberToId,
+        }
+    })
+
+    return subscribtion
+}
+
+export async function deleteSuscribtion(suscriberId: number, suscriberToId:number) : Promise<any> {
+    const subscribtionDel = await prisma.suscribtions.deleteMany({
+        where : {
+            suscriberId : suscriberId,
+            suscriberToId : suscriberToId
+        }
+    })
+
+    return subscribtionDel
 }

@@ -9,6 +9,9 @@ import {
 } from "../../../utils/user";
 import { verifyToken } from "../../../utils/jwt";
 import { Button } from "@chakra-ui/react";
+import { useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 interface Props {}
 
@@ -53,6 +56,24 @@ const Profil: NextPage<Props> = ({
     followersCount,
     suiviesCount,
 }: any) => {
+    const router = useRouter()
+
+    const [suscribeToHim, setSuscribedToHim] = useState(suscribedToHim)
+    const [suscribeToMe, setSuscribedToMe] = useState(suscribedToMe)
+
+    function handleSuscribe(){
+        axios({
+            method: 'POST',
+            url: "/api/suscribtion",
+            data : {
+                suscriberId : loggedInUser.id,
+                suscriberToId : user.id
+            }
+        }).then(()=>{
+            setSuscribedToHim((previous :any)=> !previous)
+        })
+    }
+
     let Buttons;
 
     if (loggedInUser) {
@@ -62,27 +83,27 @@ const Profil: NextPage<Props> = ({
                     <Button>Modifier le profil</Button>
                 </>
             );
-        } else if (!suscribedToHim && !suscribedToMe) {
+        } else if (!suscribeToHim && !suscribeToMe) {
             Buttons = (
                 <>
-                    <Button colorScheme="twitter">Suivre</Button>
+                    <Button colorScheme="twitter" onClick={handleSuscribe}>Suivre</Button>
                     <Button>Contacter</Button>
                 </>
             );
-        } else if (!suscribedToHim && suscribedToMe) {
+        } else if (!suscribeToHim && suscribeToMe) {
             Buttons = (
                 <>
-                    <Button colorScheme="twitter">Suivre en retour</Button>
+                    <Button colorScheme="twitter" onClick={handleSuscribe}>Suivre en retour</Button>
                     <Button>Contacter</Button>
                 </>
             );
         } else if (
-            (suscribedToHim && suscribedToMe) ||
-            (suscribedToHim && !suscribedToMe)
+            (suscribeToHim && suscribeToMe) ||
+            (suscribeToHim && !suscribeToMe)
         ) {
             Buttons = (
                 <>
-                    <Button>Suivi</Button>
+                    <Button onClick={handleSuscribe}>Suivi</Button>
                     <Button>Contacter</Button>
                 </>
             );
@@ -90,7 +111,7 @@ const Profil: NextPage<Props> = ({
     } else {
         Buttons = (
             <>
-                <Button colorScheme="twitter">Suivre</Button>
+                <Button colorScheme="twitter" onClick={()=>router.push("/login")}>Suivre</Button>
                 <Button>Contacter</Button>
             </>
         );
