@@ -30,7 +30,7 @@ export default async function handler(
             const jwtoken = await generateToken(
                 userData,
                 process.env.JWT_SECRET!,
-                60 * 5
+                60 * 60 * 60 * 24
             );
 
             res.setHeader(
@@ -39,7 +39,7 @@ export default async function handler(
                     httpOnly: true,
                     secure: process.env.NODE_ENV === "production",
                     sameSite: "strict",
-                    maxAge: 60 * 5,
+                    maxAge: 60 * 60 * 60 * 24,
                     path: "/",
                 })
             );

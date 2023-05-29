@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import axios from "axios";
 
 const prisma = new PrismaClient();
 
@@ -70,27 +71,46 @@ export async function isFollowed(
         },
     });
 
-    return bool !== 0
+    return bool !== 0;
 }
 
-export async function createSuscribtion(suscriberId: number, suscriberToId: number) :Promise<any> {
+export async function createSuscribtion(
+    suscriberId: number,
+    suscriberToId: number
+): Promise<any> {
     const subscribtion = await prisma.suscribtions.create({
-        data : {
-            suscriberId : suscriberId,
-            suscriberToId : suscriberToId,
-        }
-    })
+        data: {
+            suscriberId: suscriberId,
+            suscriberToId: suscriberToId,
+        },
+    });
 
-    return subscribtion
+    return subscribtion;
 }
 
-export async function deleteSuscribtion(suscriberId: number, suscriberToId:number) : Promise<any> {
+export async function deleteSuscribtion(
+    suscriberId: number,
+    suscriberToId: number
+): Promise<any> {
     const subscribtionDel = await prisma.suscribtions.deleteMany({
-        where : {
-            suscriberId : suscriberId,
-            suscriberToId : suscriberToId
-        }
-    })
+        where: {
+            suscriberId: suscriberId,
+            suscriberToId: suscriberToId,
+        },
+    });
 
-    return subscribtionDel
+    return subscribtionDel;
+}
+
+export async function uploadProfilPic(loggedInUserId: any, url: any) {
+    const photo = await prisma.user.update({
+        where: {
+            id: loggedInUserId,
+        },
+        data: {
+            photo: url,
+        },
+    });
+
+    return photo
 }
