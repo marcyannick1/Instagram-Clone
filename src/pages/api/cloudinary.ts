@@ -1,6 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import formidable from "formidable";
-import { imageExist, uploadImage } from "../../../utils/cloudinary";
+import deleteImage, {
+    imageExist,
+    uploadImage,
+} from "../../../utils/cloudinary";
 import { uploadProfilPic } from "../../../utils/user";
 
 export const config = {
@@ -28,23 +31,30 @@ export default async function handler(
 
                 const { image }: any = files;
 
-                const { loggedInUserId, loggedInUsername, uploadPreset } = fields;
-
-                res.status(200).send(imageExist(loggedInUsername as string));
+                const { loggedInUserId, loggedInUsername, uploadPreset } =
+                    fields;
 
                 try {
+                    if (
+                        await imageExist(
+                            `Instagram-Clone/profil/${loggedInUsername}`
+                        )
+                    ) {
+                        await deleteImage(
+                            `Instagram-Clone/profil/${loggedInUsername}`
+                        );
+                    }
+
                     const result = await uploadImage(
                         image.filepath,
                         uploadPreset,
                         loggedInUsername as string
                     );
 
-                    const photo = await uploadProfilPic(
+                    await uploadProfilPic(
                         parseInt(loggedInUserId as string),
                         result.secure_url
                     );
-
-                    res.status(200).send(photo);
                 } catch (error) {
                     console.error(
                         "Error uploading image to Cloudinary:",

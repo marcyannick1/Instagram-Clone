@@ -2,8 +2,8 @@ import cloudinary from "cloudinary";
 
 cloudinary.v2.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.API_KEY,
-    api_secret: process.env.API_SECRET,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 export async function uploadImage(
@@ -18,8 +18,31 @@ export async function uploadImage(
     return upload;
 }
 
-export async function imageExist(publicId :string): Promise<boolean> {
-    const response = await cloudinary.v2.api.resource(publicId);
+export async function imageExist(publicId: string): Promise<boolean> {
+    const response = await cloudinary.v2.search
+        .expression(`public_id = ${publicId}`)
+        .execute();
 
-    return response
+    return response.total_count > 0;
+}
+
+export default async function deleteImage(imagePublicId: string) {
+    try {
+        const result = await cloudinary.v2.uploader.destroy(imagePublicId);
+
+        if(result){
+            return result;
+        }
+        
+        if (result.result === "ok") {
+            console.log("Image deleted:", imagePublicId);
+            return true;
+        } else {
+            console.log("Failed to delete image:", imagePublicId);
+            return false;
+        }
+    } catch (error) {
+        console.error("Error deleting image:", error);
+        return false;
+    }
 }
