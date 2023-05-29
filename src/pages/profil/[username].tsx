@@ -13,7 +13,6 @@ import { Button } from "@chakra-ui/react";
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import { deleteImage } from "../../../utils/cloudinary";
 
 interface Props {}
 

@@ -16,7 +16,7 @@ model User {
   name             String
   email            String         @unique
   password         String
-  photo            String?
+  photo            String?        @default("https://res.cloudinary.com/dqkvgnqhp/image/upload/v1685311561/Instagram-Clone/profil/avatar.jpg")
   bio              String?
   suivies          Suscribtions[] @relation("Suscriber")
   followers        Suscribtions[] @relation("SuscriberTo")
