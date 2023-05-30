@@ -1,8 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import formidable from "formidable";
-import deleteImage, {
-    imageExist,
-    uploadImage,
+import {
+    deleteMedia,
+    mediaExist,
+    uploadMedia,
 } from "../../../utils/cloudinary";
 import { uploadProfilPic } from "../../../utils/user";
 
@@ -36,16 +37,16 @@ export default async function handler(
 
                 try {
                     if (
-                        await imageExist(
+                        await mediaExist(
                             `Instagram-Clone/profil/${loggedInUsername}`
                         )
                     ) {
-                        await deleteImage(
+                        await deleteMedia(
                             `Instagram-Clone/profil/${loggedInUsername}`
                         );
                     }
 
-                    const result = await uploadImage(
+                    const result = await uploadMedia(
                         image.filepath,
                         uploadPreset,
                         loggedInUsername as string

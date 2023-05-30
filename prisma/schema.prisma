@@ -40,12 +40,19 @@ model Posts {
   id          Int        @id @default(autoincrement())
   user        User       @relation(fields: [userId], references: [id])
   userId      Int
-  date        DateTime
-  media       String
+  date        DateTime?  @default(now())
   description String?
+  media       Medias[]
   likes       Likes[]
   comments    Comments[]
   Favoris     Favoris[]
+}
+
+model Medias {
+  id     Int    @id @default(autoincrement())
+  url    String
+  post   Posts  @relation(fields: [postId], references: [id])
+  postId Int
 }
 
 model Likes {

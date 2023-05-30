@@ -6,19 +6,19 @@ cloudinary.v2.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-export async function uploadImage(
-    image: any,
+export async function uploadMedia(
+    imagePath: any,
     uploadPreset: any,
-    publicId: string
+    publicId?: string
 ) {
-    const upload = cloudinary.v2.uploader.unsigned_upload(image, uploadPreset, {
+    const upload = cloudinary.v2.uploader.unsigned_upload(imagePath, uploadPreset, {
         public_id: publicId,
     });
 
     return upload;
 }
 
-export async function imageExist(publicId: string): Promise<boolean> {
+export async function mediaExist(publicId: string): Promise<boolean> {
     const response = await cloudinary.v2.search
         .expression(`public_id = ${publicId}`)
         .execute();
@@ -26,7 +26,7 @@ export async function imageExist(publicId: string): Promise<boolean> {
     return response.total_count > 0;
 }
 
-export default async function deleteImage(imagePublicId: string) {
+export async function deleteMedia(imagePublicId: string) {
     try {
         const result = await cloudinary.v2.uploader.destroy(imagePublicId);
 

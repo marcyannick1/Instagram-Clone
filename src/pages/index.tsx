@@ -3,6 +3,7 @@ import { verifyToken } from "../../utils/jwt";
 import { Link } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import PostsForm from "../../components/PostsForm";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const token = context.req.cookies.jwt;
@@ -32,13 +33,15 @@ export default function Home({ user }: any) {
             method: "post",
             url: "/api/logout",
         }).then(() => {
-            router.push('/login')
-        })
+            router.push("/login");
+        });
     }
     return (
         <>
-            <div>Bonjour {user.name}</div>
+            {/* <div>Bonjour {user.name}</div> */}
             <Link onClick={Logout}>Se déconnecter</Link>
+
+            <PostsForm loggedInUser = {user}/>
         </>
     );
 }

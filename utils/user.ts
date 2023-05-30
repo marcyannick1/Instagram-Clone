@@ -112,5 +112,23 @@ export async function uploadProfilPic(loggedInUserId: any, url: any) {
         },
     });
 
-    return photo
+    return photo;
+}
+
+export async function createPost(userId: any, description: any, urls: any){
+    const post = await prisma.posts.create({
+        data: {
+            userId: userId,
+            description: description,
+        },
+    });
+
+    for (const url of urls) {
+        await prisma.medias.create({
+            data: {
+                url: url,
+                postId: post.id,
+            },
+        });
+    }
 }

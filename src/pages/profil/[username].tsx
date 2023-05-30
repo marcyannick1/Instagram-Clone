@@ -149,7 +149,7 @@ const Profil: NextPage<Props> = ({
 
             axios({
                 method: "POST",
-                url: "/api/cloudinary",
+                url: "/api/profilpic",
                 data: formData,
                 headers: {
                     "Content-Type": "multipart/form-data",
