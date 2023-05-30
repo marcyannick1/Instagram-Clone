@@ -5,6 +5,7 @@ import {
     getSuiviesCount,
     getUserDatas,
     getUserIdByUsername,
+    getUserPosts,
     isFollowed,
     uploadProfilPic,
 } from "../../../utils/user";
@@ -38,6 +39,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const postsCount = await getPostsCount(userId);
     const followersCount = await getFollowersCount(userId);
     const suiviesCount = await getSuiviesCount(userId);
+    const userPosts = JSON.parse(JSON.stringify(await getUserPosts(userId)));
 
     return {
         props: {
@@ -48,6 +50,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
             postsCount: postsCount,
             followersCount: followersCount,
             suiviesCount: suiviesCount,
+            userPosts: userPosts,
         },
     };
 };
@@ -60,8 +63,11 @@ const Profil: NextPage<Props> = ({
     postsCount,
     followersCount,
     suiviesCount,
+    userPosts,
 }: any) => {
     const router = useRouter();
+
+    console.log(userPosts)
 
     const [suscribeToHim, setSuscribedToHim] = useState(suscribedToHim);
     const [suscribeToMe, setSuscribedToMe] = useState(suscribedToMe);
@@ -165,7 +171,12 @@ const Profil: NextPage<Props> = ({
     return (
         <>
             <div>
-                Photo : <img style={{borderRadius : "50%"}} src={user.photo} alt="#"></img>
+                Photo :{" "}
+                <img
+                    style={{ borderRadius: "50%", width : 100 }}
+                    src={user.photo}
+                    alt="#"
+                ></img>
                 {loggedInUser && loggedInUser.id == user.id && (
                     <form>
                         <input
@@ -187,6 +198,15 @@ const Profil: NextPage<Props> = ({
             <div>Followers : {followersCount}</div>
             <div>Suivi(e)s : {suiviesCount}</div>
             {Buttons}
+            <div>
+                Posts :
+                {userPosts.map((post :any, indx :number) => {
+                    return <div key={indx}>
+                        <img src={post.media[0].url} width={300}></img>
+                        <p>{post.description}</p>
+                    </div>
+                })}
+            </div>
         </>
     );
 };

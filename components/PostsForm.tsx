@@ -46,7 +46,6 @@ export default function PostsForm({ loggedInUser }: any) {
                 <Input
                     type="file"
                     multiple
-                    accept="image/*"
                     onChange={handleImagesChange}
                 />
                 <Textarea

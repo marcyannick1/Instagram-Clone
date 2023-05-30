@@ -26,6 +26,19 @@ export async function getUserDatas(userId: number): Promise<any> {
     return userDatas;
 }
 
+export async function getUserPosts(userId: number): Promise<any> {
+    const userPosts = await prisma.posts.findMany({
+        where: {
+            userId: userId,
+        },
+        include: {
+            media: true,
+        },
+    });
+
+    return userPosts;
+}
+
 export async function getPostsCount(userId: number): Promise<number> {
     const postsCount = await prisma.posts.count({
         where: {
@@ -115,10 +128,11 @@ export async function uploadProfilPic(loggedInUserId: any, url: any) {
     return photo;
 }
 
-export async function createPost(userId: any, description: any, urls: any){
-    const post = await prisma.posts.create({
+export async function createPost(userId: any, description: any, urls: any) {
+    const post: any = await prisma.posts.create({
         data: {
             userId: userId,
+            date: new Date(Date.now()),
             description: description,
         },
     });

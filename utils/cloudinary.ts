@@ -13,6 +13,7 @@ export async function uploadMedia(
 ) {
     const upload = cloudinary.v2.uploader.unsigned_upload(imagePath, uploadPreset, {
         public_id: publicId,
+        resource_type : 'auto',
     });
 
     return upload;

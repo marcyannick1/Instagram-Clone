@@ -49,7 +49,6 @@ export default async function handler(
                         description,
                         urls
                     );
-
                     res.status(200).send("ok");
                 } catch (error: any) {
                     console.error("Error uploading post:", error);
