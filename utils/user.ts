@@ -54,6 +54,8 @@ export async function getFollowedUsersPosts(userId: number): Promise<any> {
         include: {
             media: true,
             user : true,
+            likes : true,
+            comments : true,
         },
         orderBy: {
             date: "desc",

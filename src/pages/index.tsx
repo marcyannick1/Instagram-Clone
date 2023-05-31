@@ -1,6 +1,6 @@
 import { GetServerSideProps } from "next/types";
 import { verifyToken } from "../../utils/jwt";
-import { Link } from "@chakra-ui/react";
+import { Button, Link, Textarea } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import PostsForm from "../../components/PostsForm";
@@ -49,11 +49,18 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
             <div>
                 Users Followed Posts :
                 {usersFollowedPosts.map((post :any, indx :number) => {
-                    return <div key={indx}>
+                    return <div key={indx} style={{margin : "20px 0"}}>
                         <p>{post.user.name}</p>
                         <p>{post.date}</p>
                         <img src={post.media[0].url} width={300}></img>
-                        <p>{post.description}</p>
+                        <p>Description: {post.description}</p>
+                        <Link color='teal.500'>Liker</Link>
+                        <p>{post.likes.length} Like(s)</p>
+                        <p>{post.comments.length} Comment(s)</p>
+                        <form>
+                            <Textarea placeholder="Ajouter un commentaire"/>
+                            <Button>Publier</Button>
+                        </form>
                     </div>
                 })}
             </div>
