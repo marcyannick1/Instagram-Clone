@@ -38,6 +38,30 @@ export async function getUserPosts(userId: number): Promise<any> {
 
     return userPosts;
 }
+export async function getFollowedUsersPosts(userId: number): Promise<any> {
+    const followedUsers = await prisma.user
+        .findUnique({
+            where: { id: userId },
+        })
+        .suivies();
+
+    const posts = await prisma.posts.findMany({
+        where: {
+            userId: {
+                in: followedUsers?.map((user) => user.suscriberToId),
+            },
+        },
+        include: {
+            media: true,
+            user : true,
+        },
+        orderBy: {
+            date: "desc",
+        },
+    });
+
+    return posts;
+}
 
 export async function getPostsCount(userId: number): Promise<number> {
     const postsCount = await prisma.posts.count({

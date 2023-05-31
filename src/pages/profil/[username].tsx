@@ -7,7 +7,6 @@ import {
     getUserIdByUsername,
     getUserPosts,
     isFollowed,
-    uploadProfilPic,
 } from "../../../utils/user";
 import { verifyToken } from "../../../utils/jwt";
 import { Button } from "@chakra-ui/react";
