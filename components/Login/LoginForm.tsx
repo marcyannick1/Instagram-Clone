@@ -1,15 +1,4 @@
-import {
-    Center,
-    Text,
-    Input,
-    FormLabel,
-    Heading,
-    Button,
-    Link,
-    Alert,
-    AlertIcon,
-    Box,
-} from "@chakra-ui/react";
+import { Center, Text, Input, Button, Link, Box } from "@chakra-ui/react";
 import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/router";
@@ -21,8 +10,10 @@ function LoginForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     function Login(e: any) {
+        setLoading(true);
         e.preventDefault();
 
         axios({
@@ -38,6 +29,9 @@ function LoginForm() {
             })
             .catch((err) => {
                 setError(err.response.data);
+            })
+            .finally(() => {
+                setLoading(false);
             });
     }
 
@@ -79,14 +73,16 @@ function LoginForm() {
                         }}
                         placeholder="Mot de passe"
                     />
-                    <Button type="submit" w="full" mb={5} colorScheme="twitter">
+                    <Button isLoading={loading} type="submit" w="full" mb={5} colorScheme="twitter">
                         Se connecter
                     </Button>
                     {error && (
-                        <Text color="red" mb={5}>{error}</Text>
+                        <Text color="red" mb={5}>
+                            {error}
+                        </Text>
                     )}
                     <Link as={NextLink} href="#" color="blue.600">
-                        Mot de passe oublié
+                        Mot de passe oublié ?
                     </Link>
                 </form>
             </Center>
@@ -99,7 +95,7 @@ function LoginForm() {
                 rounded={2}
             >
                 <Text>
-                    {"Vous n'avez pas de compte "}
+                    {"Vous n'avez pas de compte ? "}
                     <Link
                         as={NextLink}
                         href="register"
