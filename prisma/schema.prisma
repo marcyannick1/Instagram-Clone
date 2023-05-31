@@ -40,7 +40,7 @@ model Posts {
   id          Int        @id @default(autoincrement())
   user        User       @relation(fields: [userId], references: [id])
   userId      Int
-  date        DateTime?  @db.Timestamp(3) @default(now())
+  date        DateTime?  @default(now()) @db.Timestamp(3)
   description String?
   media       Medias[]
   likes       Likes[]
@@ -64,11 +64,12 @@ model Likes {
 }
 
 model Comments {
-  id     Int   @id @default(autoincrement())
-  user   User  @relation(fields: [userId], references: [id])
-  userId Int
-  post   Posts @relation(fields: [postId], references: [id])
-  postId Int
+  id      Int    @id @default(autoincrement())
+  content String
+  user    User   @relation(fields: [userId], references: [id])
+  userId  Int
+  post    Posts  @relation(fields: [postId], references: [id])
+  postId  Int
 }
 
 model Favoris {

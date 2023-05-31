@@ -53,9 +53,9 @@ export async function getFollowedUsersPosts(userId: number): Promise<any> {
         },
         include: {
             media: true,
-            user : true,
-            likes : true,
-            comments : true,
+            user: true,
+            likes: true,
+            comments: true,
         },
         orderBy: {
             date: "desc",
@@ -171,4 +171,52 @@ export async function createPost(userId: any, description: any, urls: any) {
             },
         });
     }
+}
+
+export async function createOrDeleteLike(
+    userId: number,
+    postId: number
+): Promise<any> {
+    const likeCount = await prisma.likes.count({
+        where: {
+            userId: userId,
+            postId: postId,
+        },
+    });
+
+    if (likeCount > 0) {
+        const likeDelete = await prisma.likes.deleteMany({
+            where: {
+                userId: userId,
+                postId: postId,
+            },
+        });
+
+        return likeDelete;
+    } else {
+        const likeCreate = await prisma.likes.create({
+            data: {
+                userId: userId,
+                postId: postId,
+            },
+        });
+
+        return likeCreate;
+    }
+}
+
+export async function createComment(
+    userId: number,
+    postId: number,
+    content: string
+): Promise<any> {
+    const comment = await prisma.comments.create({
+        data: {
+            userId: userId,
+            postId: postId,
+            content: content,
+        },
+    });
+
+    return comment;
 }
