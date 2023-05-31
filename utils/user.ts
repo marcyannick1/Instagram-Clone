@@ -204,6 +204,37 @@ export async function createOrDeleteLike(
         return likeCreate;
     }
 }
+export async function createOrDeleteSaved(
+    userId: number,
+    postId: number
+): Promise<any> {
+    const savedCount = await prisma.favoris.count({
+        where: {
+            userId: userId,
+            postId: postId,
+        },
+    });
+
+    if (savedCount > 0) {
+        const likeDelete = await prisma.favoris.deleteMany({
+            where: {
+                userId: userId,
+                postId: postId,
+            },
+        });
+
+        return likeDelete;
+    } else {
+        const savedCreate = await prisma.favoris.create({
+            data: {
+                userId: userId,
+                postId: postId,
+            },
+        });
+
+        return savedCreate;
+    }
+}
 
 export async function createComment(
     userId: number,

@@ -36,7 +36,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
 
     const [commentInputs, setCommentInputs] = useState<string[]>([]);
 
-    // console.log(usersFollowedPosts);
+    console.log(usersFollowedPosts);
 
     function Logout() {
         axios({
@@ -51,6 +51,17 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
         axios({
             method: "POST",
             url: "/api/like",
+            data: {
+                userId: loggedInUser.id,
+                postId: postId,
+            },
+        }).then((response) => console.log(response));
+    }
+
+    function handlePostSave(postId: number) {
+        axios({
+            method: "POST",
+            url: "/api/favoris",
             data: {
                 userId: loggedInUser.id,
                 postId: postId,
@@ -89,7 +100,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                 {usersFollowedPosts.map((post: any, indx: number) => {
                     return (
                         <div key={indx} style={{ margin: "20px 0" }}>
-                            <p>{post.user.name}</p>
+                            <Link href={`profil/${post.user.username}`}>{post.user.name}</Link>
                             <p>{post.date}</p>
                             <img src={post.media[0].url} width={300}></img>
                             <p>Description: {post.description}</p>
@@ -98,6 +109,13 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                 onClick={() => handlePostLike(post.id)}
                             >
                                 Liker
+                            </Link>
+                            <br />
+                            <Link
+                                color="teal.500"
+                                onClick={() => handlePostSave(post.id)}
+                            >
+                                Enregistrer
                             </Link>
                             <p>{post.likes.length} Like(s)</p>
                             <p>{post.comments.length} Comment(s)</p>
