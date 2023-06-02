@@ -81,8 +81,13 @@ const Profil: NextPage<Props> = ({
 
     const [suscribeToHim, setSuscribedToHim] = useState(suscribedToHim);
     const [suscribeToMe, setSuscribedToMe] = useState(suscribedToMe);
+    const [suscribeLoading, setSuscribeLoading] = useState(false);
+
+    const [stateFollowersCount, setStateFollowersCount] =
+        useState(followersCount);
 
     function handleSuscribe() {
+        setSuscribeLoading(true);
         axios({
             method: "POST",
             url: "/api/suscribtion",
@@ -90,9 +95,16 @@ const Profil: NextPage<Props> = ({
                 suscriberId: loggedInUser.id,
                 suscriberToId: user.id,
             },
-        }).then(() => {
-            setSuscribedToHim((previous: any) => !previous);
-        });
+        })
+            .then(() => {
+                setSuscribedToHim((previous: any) => !previous);
+                suscribeToHim
+                    ? setStateFollowersCount((previous: any) => previous - 1)
+                    : setStateFollowersCount((previous: any) => previous + 1);
+            })
+            .finally(() => {
+                setSuscribeLoading(false);
+            });
     }
 
     let Buttons;
@@ -114,6 +126,7 @@ const Profil: NextPage<Props> = ({
                         size="sm"
                         colorScheme="twitter"
                         onClick={handleSuscribe}
+                        isLoading={suscribeLoading}
                     >
                         Suivre
                     </Button>
@@ -128,9 +141,10 @@ const Profil: NextPage<Props> = ({
                     <Button
                         minWidth="100px"
                         size="sm"
-                        width={100}
+                        minW="100px"
                         colorScheme="twitter"
                         onClick={handleSuscribe}
+                        isLoading={suscribeLoading}
                     >
                         Suivre en retour
                     </Button>
@@ -145,7 +159,12 @@ const Profil: NextPage<Props> = ({
         ) {
             Buttons = (
                 <Flex gap={2}>
-                    <Button minWidth="100px" size="sm" onClick={handleSuscribe}>
+                    <Button
+                        minWidth="100px"
+                        size="sm"
+                        onClick={handleSuscribe}
+                        isLoading={suscribeLoading}
+                    >
                         Suivi
                     </Button>
                     <Button minWidth="100px" size="sm">
@@ -169,11 +188,11 @@ const Profil: NextPage<Props> = ({
     }
 
     // Upload d'image
-    const [loading, setLoading] = useState(false);
+    const [imgLoading, setImgLoading] = useState(false);
 
     const handleImageChange = async (event: any) => {
         if (event.target.files[0]) {
-            setLoading(true);
+            setImgLoading(true);
             const formData = new FormData();
             formData.append("image", event.target.files[0]);
 
@@ -199,16 +218,21 @@ const Profil: NextPage<Props> = ({
     };
     return (
         <Layout>
-            <main style={{maxWidth: "935px", margin: "auto"}}>
-                <Flex gap='100px' py={10} borderBottom='1px' borderColor="blackAlpha.300">
-                    <Box position="relative" px={5}>
-                        {loading && (
+            <main style={{ maxWidth: "935px", margin: "auto" }}>
+                <Flex
+                    gap="100px"
+                    py={10}
+                    borderBottom="1px"
+                    borderColor="blackAlpha.300"
+                >
+                    <Box position="relative" mx={5}>
+                        {imgLoading && (
                             <Spinner
                                 position="absolute"
                                 top="0"
                                 left="0"
-                                height="168px"
-                                width="168px"
+                                height="100%"
+                                width="100%"
                                 color="gray.300"
                             />
                         )}
@@ -219,7 +243,7 @@ const Profil: NextPage<Props> = ({
                             style={{
                                 borderRadius: "50%",
                                 border: "1px solid gainsboro",
-                                opacity: loading ? 0.5 : 1,
+                                opacity: imgLoading ? 0.5 : 1,
                             }}
                             alt="profil pic"
                         />
@@ -261,7 +285,7 @@ const Profil: NextPage<Props> = ({
                             </ListItem>
                             <ListItem>
                                 <Text fontWeight="medium" display="inline">
-                                    {followersCount}
+                                    {stateFollowersCount}
                                 </Text>{" "}
                                 followers
                             </ListItem>
@@ -278,20 +302,26 @@ const Profil: NextPage<Props> = ({
                         </Flex>
                     </Flex>
                 </Flex>
-            </main>
+                <UnorderedList display="flex" justifyContent="center" gap={10}>
+                    <ListItem listStyleType="none" borderTop="1px" py={4}>
+                        <i
+                            className="fa-solid fa-grid"
+                            style={{ marginRight: "10px" }}
+                        ></i>
+                        Publications
+                    </ListItem>
+                </UnorderedList>
 
-            {/* /////////////////////////////////////////////////////// */}
-            <div>
-                Posts :
-                {userPosts.map((post: any, indx: number) => {
-                    return (
-                        <div key={indx}>
-                            <img src={post.media[0].url} width={300}></img>
-                            <p>{post.description}</p>
-                        </div>
-                    );
-                })}
-            </div>
+                <Flex gap={1} flexWrap="wrap">
+                    {userPosts.map((post: any, indx: number) => {
+                        return (
+                            <div key={indx} style={{width : "33%", aspectRatio : "1/1", position : "relative"}}>
+                                <img src={post.media[0].url} style={{position : "absolute", objectFit : "cover", width : "100%", height : "100%"}}></img>
+                            </div>
+                        );
+                    })}
+                </Flex>
+            </main>
         </Layout>
     );
 };
