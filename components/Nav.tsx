@@ -1,4 +1,5 @@
 import { Button, Flex } from "@chakra-ui/react";
+import Image from "next/image";
 import React from "react";
 
 export default function Nav() {
@@ -13,11 +14,14 @@ export default function Nav() {
             borderRight="1px"
             borderColor="gray.300"
             p={3}
+            position="fixed"
+            backgroundColor="white"
         >
-            <img
-                src="logo.png"
+            <Image
+                src="/logo.png"
                 alt="logo"
                 width={120}
+                height={0}
                 style={{
                     paddingLeft: ".75rem",
                     margin: "30px 0",

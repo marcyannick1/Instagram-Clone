@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import PostsForm from "../../components/PostsForm";
 import { getFollowedUsersPosts } from "../../utils/user";
 import { useState } from "react";
+import Layout from "../../components/Layout";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const token = context.req.cookies.jwt;
@@ -91,7 +92,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
     }
 
     return (
-        <>
+        <Layout>
             <div>Bonjour {loggedInUser.name}</div>
             <Link onClick={Logout}>Se déconnecter</Link>
             <PostsForm loggedInUser={loggedInUser} />
@@ -142,6 +143,6 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                     );
                 })}
             </div>
-        </>
+        </Layout>
     );
 }

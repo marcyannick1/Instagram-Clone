@@ -56,6 +56,7 @@ export default async function handler(
                         parseInt(loggedInUserId as string),
                         result.secure_url
                     );
+                    res.status(200).send("ok ");
                 } catch (error) {
                     console.error(
                         "Error uploading image to Cloudinary:",

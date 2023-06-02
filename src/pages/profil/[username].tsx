@@ -9,10 +9,21 @@ import {
     isFollowed,
 } from "../../../utils/user";
 import { verifyToken } from "../../../utils/jwt";
-import { Button } from "@chakra-ui/react";
+import {
+    Box,
+    Button,
+    Flex,
+    Input,
+    ListItem,
+    Text,
+    UnorderedList,
+} from "@chakra-ui/react";
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import Layout from "../../../components/Layout";
+import Image from "next/image";
+import { Spinner } from "@chakra-ui/react";
 
 interface Props {}
 
@@ -66,7 +77,7 @@ const Profil: NextPage<Props> = ({
 }: any) => {
     const router = useRouter();
 
-    console.log(userPosts)
+    console.log(userPosts);
 
     const [suscribeToHim, setSuscribedToHim] = useState(suscribedToHim);
     const [suscribeToMe, setSuscribedToMe] = useState(suscribedToMe);
@@ -90,36 +101,57 @@ const Profil: NextPage<Props> = ({
         if (loggedInUser.id == user.id) {
             Buttons = (
                 <>
-                    <Button>Modifier le profil</Button>
+                    <Button minWidth="100px" size="sm">
+                        Modifier le profil
+                    </Button>
                 </>
             );
         } else if (!suscribeToHim && !suscribeToMe) {
             Buttons = (
-                <>
-                    <Button colorScheme="twitter" onClick={handleSuscribe}>
+                <Flex gap={2}>
+                    <Button
+                        minWidth="100px"
+                        size="sm"
+                        colorScheme="twitter"
+                        onClick={handleSuscribe}
+                    >
                         Suivre
                     </Button>
-                    <Button>Contacter</Button>
-                </>
+                    <Button minWidth="100px" size="sm">
+                        Contacter
+                    </Button>
+                </Flex>
             );
         } else if (!suscribeToHim && suscribeToMe) {
             Buttons = (
-                <>
-                    <Button colorScheme="twitter" onClick={handleSuscribe}>
+                <Flex gap={2}>
+                    <Button
+                        minWidth="100px"
+                        size="sm"
+                        width={100}
+                        colorScheme="twitter"
+                        onClick={handleSuscribe}
+                    >
                         Suivre en retour
                     </Button>
-                    <Button>Contacter</Button>
-                </>
+                    <Button minWidth="100px" size="sm">
+                        Contacter
+                    </Button>
+                </Flex>
             );
         } else if (
             (suscribeToHim && suscribeToMe) ||
             (suscribeToHim && !suscribeToMe)
         ) {
             Buttons = (
-                <>
-                    <Button onClick={handleSuscribe}>Suivi</Button>
-                    <Button>Contacter</Button>
-                </>
+                <Flex gap={2}>
+                    <Button minWidth="100px" size="sm" onClick={handleSuscribe}>
+                        Suivi
+                    </Button>
+                    <Button minWidth="100px" size="sm">
+                        Contacter
+                    </Button>
+                </Flex>
             );
         }
     } else {
@@ -137,16 +169,13 @@ const Profil: NextPage<Props> = ({
     }
 
     // Upload d'image
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-    const handleImageChange = (event: any) => {
-        setSelectedImage(event.target.files[0]);
-    };
-
-    const handleImageUpload = async () => {
-        if (selectedImage) {
+    const handleImageChange = async (event: any) => {
+        if (event.target.files[0]) {
+            setLoading(true);
             const formData = new FormData();
-            formData.append("image", selectedImage);
+            formData.append("image", event.target.files[0]);
 
             formData.append("loggedInUserId", loggedInUser.id);
             formData.append("loggedInUsername", loggedInUser.username);
@@ -160,53 +189,110 @@ const Profil: NextPage<Props> = ({
                     "Content-Type": "multipart/form-data",
                 },
             })
-                .then((res) => console.log(res))
+                .then((res) => {
+                    router.reload();
+                })
                 .catch((error) =>
                     console.error("Error uploading image:", error)
                 );
         }
     };
-
     return (
-        <>
-            <div>
-                Photo :{" "}
-                <img
-                    style={{ borderRadius: "50%", width : 100 }}
-                    src={user.photo}
-                    alt="#"
-                ></img>
-                {loggedInUser && loggedInUser.id == user.id && (
-                    <form>
-                        <input
-                            type="file"
-                            name="image"
-                            accept="image/*"
-                            onChange={handleImageChange}
+        <Layout>
+            <main style={{maxWidth: "935px", margin: "auto"}}>
+                <Flex gap='100px' py={10} borderBottom='1px' borderColor="blackAlpha.300">
+                    <Box position="relative" px={5}>
+                        {loading && (
+                            <Spinner
+                                position="absolute"
+                                top="0"
+                                left="0"
+                                height="168px"
+                                width="168px"
+                                color="gray.300"
+                            />
+                        )}
+                        <Image
+                            src={user.photo}
+                            width={170}
+                            height={0}
+                            style={{
+                                borderRadius: "50%",
+                                border: "1px solid gainsboro",
+                                opacity: loading ? 0.5 : 1,
+                            }}
+                            alt="profil pic"
                         />
-                        <Button onClick={handleImageUpload}>
-                            Modifier la photo
-                        </Button>
-                    </form>
-                )}
-            </div>
-            <div>Username : {user.username}</div>
-            <div>Nom : {user.name}</div>
-            <div>Bio : {user.bio}</div>
-            <div>Publications : {postsCount}</div>
-            <div>Followers : {followersCount}</div>
-            <div>Suivi(e)s : {suiviesCount}</div>
-            {Buttons}
+                        {loggedInUser && loggedInUser.id == user.id && (
+                            <Input
+                                type="file"
+                                name="image"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                position="absolute"
+                                top="0"
+                                left="0"
+                                height="100%"
+                                width="100%"
+                                opacity={0}
+                                cursor="pointer"
+                                borderRadius="50%"
+                            />
+                        )}
+                    </Box>
+                    <Flex flexDir="column" gap={4}>
+                        <Flex gap={6} alignItems="center">
+                            <Text fontWeight="medium" fontSize="1.2em">
+                                {user.username}
+                            </Text>
+                            {Buttons}
+                        </Flex>
+                        <UnorderedList
+                            listStyleType="none"
+                            margin={0}
+                            display="flex"
+                            gap={10}
+                        >
+                            <ListItem>
+                                <Text fontWeight="medium" display="inline">
+                                    {postsCount}
+                                </Text>{" "}
+                                publications
+                            </ListItem>
+                            <ListItem>
+                                <Text fontWeight="medium" display="inline">
+                                    {followersCount}
+                                </Text>{" "}
+                                followers
+                            </ListItem>
+                            <ListItem>
+                                <Text fontWeight="medium" display="inline">
+                                    {suiviesCount}
+                                </Text>{" "}
+                                suivi(e)s
+                            </ListItem>
+                        </UnorderedList>
+                        <Flex flexDir="column">
+                            <Text fontWeight="medium">{user.name}</Text>
+                            <Text>{user.bio}</Text>
+                        </Flex>
+                    </Flex>
+                </Flex>
+            </main>
+
+            {/* /////////////////////////////////////////////////////// */}
             <div>
                 Posts :
-                {userPosts.map((post :any, indx :number) => {
-                    return <div key={indx}>
-                        <img src={post.media[0].url} width={300}></img>
-                        <p>{post.description}</p>
-                    </div>
+                {userPosts.map((post: any, indx: number) => {
+                    return (
+                        <div key={indx}>
+                            <img src={post.media[0].url} width={300}></img>
+                            <p>{post.description}</p>
+                        </div>
+                    );
                 })}
             </div>
-        </>
+        </Layout>
     );
 };
 
