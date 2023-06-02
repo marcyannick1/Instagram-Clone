@@ -80,7 +80,6 @@ const Profil: NextPage<Props> = ({
     console.log(userPosts);
 
     const [suscribeToHim, setSuscribedToHim] = useState(suscribedToHim);
-    const [suscribeToMe, setSuscribedToMe] = useState(suscribedToMe);
     const [suscribeLoading, setSuscribeLoading] = useState(false);
 
     const [stateFollowersCount, setStateFollowersCount] =
@@ -118,7 +117,7 @@ const Profil: NextPage<Props> = ({
                     </Button>
                 </>
             );
-        } else if (!suscribeToHim && !suscribeToMe) {
+        } else if (!suscribeToHim && !suscribedToMe) {
             Buttons = (
                 <Flex gap={2}>
                     <Button
@@ -135,7 +134,7 @@ const Profil: NextPage<Props> = ({
                     </Button>
                 </Flex>
             );
-        } else if (!suscribeToHim && suscribeToMe) {
+        } else if (!suscribeToHim && suscribedToMe) {
             Buttons = (
                 <Flex gap={2}>
                     <Button
@@ -154,8 +153,8 @@ const Profil: NextPage<Props> = ({
                 </Flex>
             );
         } else if (
-            (suscribeToHim && suscribeToMe) ||
-            (suscribeToHim && !suscribeToMe)
+            (suscribeToHim && suscribedToMe) ||
+            (suscribeToHim && !suscribedToMe)
         ) {
             Buttons = (
                 <Flex gap={2}>
@@ -220,12 +219,13 @@ const Profil: NextPage<Props> = ({
         <Layout>
             <main style={{ maxWidth: "935px", margin: "auto" }}>
                 <Flex
-                    gap="100px"
+                    gap={5}
                     py={10}
                     borderBottom="1px"
                     borderColor="blackAlpha.300"
                 >
-                    <Box position="relative" mx={5}>
+                    <abbr title="Modifier la photo de profil">
+                    <Box position="relative" mx={20}>
                         {imgLoading && (
                             <Spinner
                                 position="absolute"
@@ -238,11 +238,11 @@ const Profil: NextPage<Props> = ({
                         )}
                         <Image
                             src={user.photo}
-                            width={170}
+                            width={160}
                             height={0}
                             style={{
                                 borderRadius: "50%",
-                                border: "1px solid gainsboro",
+                                border: "2px solid gainsboro",
                                 opacity: imgLoading ? 0.5 : 1,
                             }}
                             alt="profil pic"
@@ -264,6 +264,7 @@ const Profil: NextPage<Props> = ({
                             />
                         )}
                     </Box>
+                    </abbr>
                     <Flex flexDir="column" gap={4}>
                         <Flex gap={6} alignItems="center">
                             <Text fontWeight="medium" fontSize="1.2em">
@@ -302,21 +303,48 @@ const Profil: NextPage<Props> = ({
                         </Flex>
                     </Flex>
                 </Flex>
-                <UnorderedList display="flex" justifyContent="center" gap={10}>
-                    <ListItem listStyleType="none" borderTop="1px" py={4}>
+                <UnorderedList display="flex" justifyContent="center" gap={14}>
+                    <ListItem fontWeight="medium" fontSize=".8em" listStyleType="none" borderTop="1px" py={4}>
                         <i
                             className="fa-solid fa-grid"
                             style={{ marginRight: "10px" }}
                         ></i>
-                        Publications
+                        PUBLICATIONS
                     </ListItem>
+                    {loggedInUser && loggedInUser.id == user.id && (
+                        <ListItem fontWeight="medium" fontSize=".8em" listStyleType="none" py={4}>
+                            <i
+                                className="fa-regular fa-bookmark"
+                                style={{ marginRight: "10px" }}
+                            ></i>
+                            ENREGISTREMENTS
+                        </ListItem>
+                    )}
                 </UnorderedList>
 
                 <Flex gap={1} flexWrap="wrap">
                     {userPosts.map((post: any, indx: number) => {
                         return (
-                            <div key={indx} style={{width : "33%", aspectRatio : "1/1", position : "relative"}}>
-                                <img src={post.media[0].url} style={{position : "absolute", objectFit : "cover", width : "100%", height : "100%"}}></img>
+                            <div
+                                key={indx}
+                                style={{
+                                    width: "33%",
+                                    aspectRatio: "1/1",
+                                    position: "relative",
+                                }}
+                            >
+                                <Image
+                                    src={post.media[0].url}
+                                    width="500"
+                                    height={0}
+                                    alt="post"
+                                    style={{
+                                        position: "absolute",
+                                        objectFit: "cover",
+                                        width: "100%",
+                                        height: "100%",
+                                    }}
+                                ></Image>
                             </div>
                         );
                     })}
