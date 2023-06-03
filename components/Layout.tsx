@@ -2,10 +2,10 @@ import { Box } from "@chakra-ui/react";
 import React from "react";
 import Nav from "./Nav";
 
-export default function Layout({ children, style } :any) {
+export default function Layout({ children, style, loggedInUser } :any) {
     return (
         <>
-            <Nav />
+            <Nav loggedInUser={loggedInUser}/>
             <Box ml="245" style={style}>{children}</Box>
         </>
     );

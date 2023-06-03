@@ -30,9 +30,10 @@ interface Props {}
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const token = ctx.req.cookies.jwt;
 
-    const loggedInUser = token
+    const user = token
         ? await verifyToken(token, process.env.JWT_SECRET!)
         : null;
+    const loggedInUser = await getUserDatas(user.id)
 
     const username: any = ctx.query.username;
     const userId = await getUserIdByUsername(username);
@@ -216,7 +217,7 @@ const Profil: NextPage<Props> = ({
         }
     };
     return (
-        <Layout>
+        <Layout loggedInUser={loggedInUser}>
             <main style={{ maxWidth: "935px", margin: "auto" }}>
                 <Flex
                     gap={5}

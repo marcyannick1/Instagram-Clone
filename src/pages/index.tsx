@@ -4,7 +4,7 @@ import { Button, Flex, Link, Text, Input } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import PostsForm from "../../components/PostsForm";
-import { getFollowedUsersPosts } from "../../utils/user";
+import { getFollowedUsersPosts, getUserDatas } from "../../utils/user";
 import { useState } from "react";
 import Layout from "../../components/Layout";
 import Image from "next/image";
@@ -21,12 +21,13 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         };
     } else {
         const user = await verifyToken(token, process.env.JWT_SECRET!);
+        const loggedInUser = await getUserDatas(user.id);
         const usersFollowedPosts = JSON.parse(
             JSON.stringify(await getFollowedUsersPosts(user.id))
         );
         return {
             props: {
-                loggedInUser: user,
+                loggedInUser: loggedInUser,
                 usersFollowedPosts: usersFollowedPosts,
             },
         };
@@ -91,9 +92,10 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
         updatedInputValues[name] = value;
         setCommentInputs(updatedInputValues);
     }
+    console.log("1",loggedInUser)
 
     return (
-        <Layout>
+        <Layout loggedInUser={loggedInUser}>
             <Link onClick={Logout}>Se déconnecter</Link>
             <main>
                 <div>
@@ -196,60 +198,6 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                     })}
                 </div>
             </main>
-
-            {/* /////////////////////////////////////////// */}
-            {/* <div>Bonjour {loggedInUser.name}</div>
-            <Link onClick={Logout}>Se déconnecter</Link>
-            <PostsForm loggedInUser={loggedInUser} /> */}
-            {/* <div>
-                Users Followed Posts :
-                {usersFollowedPosts.map((post: any, indx: number) => {
-                    return (
-                        <div key={indx} style={{ margin: "20px 0" }}>
-                            <Link href={`profil/${post.user.username}`}>
-                                {post.user.name}
-                            </Link>
-                            <p>{post.date}</p>
-                            <img src={post.media[0].url} width={300}></img>
-                            <p>Description: {post.description}</p>
-                            <Link
-                                color="teal.500"
-                                onClick={() => handlePostLike(post.id)}
-                            >
-                                Liker
-                            </Link>
-                            <br />
-                            <Link
-                                color="teal.500"
-                                onClick={() => handlePostSave(post.id)}
-                            >
-                                Enregistrer
-                            </Link>
-                            <p>{post.likes.length} Like(s)</p>
-                            <p>{post.comments.length} Comment(s)</p>
-                            <form>
-                                <Textarea
-                                    placeholder="Ajouter un commentaire"
-                                    onChange={handleCommentInputsChange}
-                                    name={(post.id - 1).toString()}
-                                    value={commentInputs[post.id - 1]}
-                                />
-
-                                <Button
-                                    onClick={() =>
-                                        handlePostComment(
-                                            post.id,
-                                            commentInputs[post.id - 1]
-                                        )
-                                    }
-                                >
-                                    Publier
-                                </Button>
-                            </form>
-                        </div>
-                    );
-                })}
-            </div> */}
         </Layout>
     );
 }
