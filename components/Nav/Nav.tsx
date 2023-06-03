@@ -11,7 +11,6 @@ export default function Nav({ loggedInUser }: any) {
 
     const [showSearchTab, setShowSearchTab] = useState(false);
     const [showNotifsTab, setShowNotifsTab] = useState(false);
-    console.log(router);
 
     const iconStyle = {
         fontSize: "1.5em",

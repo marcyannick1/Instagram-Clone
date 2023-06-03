@@ -4,8 +4,13 @@ import { Button, Flex, Link, Text, Input } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import PostsForm from "../../components/PostsForm";
-import { getFollowedUsersPosts, getUserDatas } from "../../utils/user";
-import { useState } from "react";
+import {
+    alreadyLiked,
+    alreadySaved,
+    getFollowedUsersPosts,
+    getUserDatas,
+} from "../../utils/user";
+import { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import Image from "next/image";
 
@@ -25,6 +30,21 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         const usersFollowedPosts = JSON.parse(
             JSON.stringify(await getFollowedUsersPosts(user.id))
         );
+
+        for (const post of usersFollowedPosts) {
+            if (await alreadyLiked(loggedInUser.id, post.id)) {
+                post.liked = true;
+            } else {
+                post.liked = false;
+            }
+
+            if (await alreadySaved(loggedInUser.id, post.id)) {
+                post.saved = true;
+            } else {
+                post.saved = false;
+            }
+        }
+
         return {
             props: {
                 loggedInUser: loggedInUser,
@@ -38,8 +58,29 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
     const router = useRouter();
 
     const [commentInputs, setCommentInputs] = useState<string[]>([]);
+    const [postsSaved, setPostsSaved] = useState<any>({});
+    const [postsLiked, setPostsLiked] = useState<any>({});
+    const [postsLikesCount, setPostsLikesCount] = useState<any>({});
 
-    console.log(usersFollowedPosts);
+    useEffect(() => {
+        for (const post of usersFollowedPosts) {
+            setPostsSaved((previous: any) => {
+                return { ...previous, [post.id]: post.saved };
+            });
+        }
+
+        for (const post of usersFollowedPosts) {
+            setPostsLiked((previous: any) => {
+                return { ...previous, [post.id]: post.liked };
+            });
+        }
+
+        for (const post of usersFollowedPosts) {
+            setPostsLikesCount((previous: any) => {
+                return { ...previous, [post.id]: post.likes.length };
+            });
+        }
+    }, []);
 
     function Logout() {
         axios({
@@ -50,7 +91,22 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
         });
     }
 
-    function handlePostLike(postId: number) {
+    function handlePostLike(postId: number, action: string) {
+        setPostsLiked((previous: any) => {
+            return {
+                ...previous,
+                [postId]: !postsLiked[postId],
+            };
+        });
+        setPostsLikesCount((previous: any) => {
+            return {
+                ...previous,
+                [postId]:
+                    action === "like"
+                        ? postsLikesCount[postId] + 1
+                        : postsLikesCount[postId] - 1,
+            };
+        });
         axios({
             method: "POST",
             url: "/api/like",
@@ -62,6 +118,12 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
     }
 
     function handlePostSave(postId: number) {
+        setPostsSaved((previous: any) => {
+            return {
+                ...previous,
+                [postId]: !postsSaved[postId],
+            };
+        });
         axios({
             method: "POST",
             url: "/api/favoris",
@@ -92,7 +154,8 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
         updatedInputValues[name] = value;
         setCommentInputs(updatedInputValues);
     }
-    console.log("1",loggedInUser)
+
+    console.log(usersFollowedPosts);
 
     return (
         <Layout loggedInUser={loggedInUser}>
@@ -101,7 +164,16 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                 <div>
                     {usersFollowedPosts.map((post: any, indx: number) => {
                         return (
-                            <Flex flexDir="column" key={indx} py={5} w={500} gap={2} margin="auto" borderBottom="1px" borderColor="gray.200">
+                            <Flex
+                                flexDir="column"
+                                key={indx}
+                                py={5}
+                                w={500}
+                                gap={2}
+                                margin="auto"
+                                borderBottom="1px"
+                                borderColor="gray.200"
+                            >
                                 <Flex alignItems="center" gap={2}>
                                     <Link href={`profil/${post.user.username}`}>
                                         <Image
@@ -109,13 +181,15 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                             alt={""}
                                             width="30"
                                             height="30"
-                                            style={{ borderRadius: "50%", border :"1px solid gainsboro" }}
+                                            style={{
+                                                borderRadius: "50%",
+                                                border: "1px solid gainsboro",
+                                            }}
                                         />
                                     </Link>
                                     <Link
                                         href={`profil/${post.user.username}`}
                                         fontWeight="medium"
-                                        variant="g"
                                     >
                                         {post.user.username}
                                     </Link>
@@ -129,24 +203,59 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                     alt="profil pic"
                                 />
                                 <Flex gap={4}>
-                                    <i className="fa-regular fa-heart" style={{fontSize : "1.4em"}}></i>
-                                    <i className="fa-regular fa-comment" style={{fontSize : "1.4em"}}></i>
-                                    <i className="fa-regular fa-bookmark" style={{fontSize : "1.4em", marginLeft: "auto"}}></i>
+                                    {postsLiked[post.id] ? (
+                                        <i
+                                            className="fa-solid fa-heart"
+                                            style={{
+                                                fontSize: "1.4em",
+                                                color: "#ff3040",
+                                            }}
+                                            onClick={() =>
+                                                handlePostLike(
+                                                    post.id,
+                                                    "dislike"
+                                                )
+                                            }
+                                        ></i>
+                                    ) : (
+                                        <i
+                                            className="fa-regular fa-heart"
+                                            style={{ fontSize: "1.4em" }}
+                                            onClick={() =>
+                                                handlePostLike(post.id, "like")
+                                            }
+                                        ></i>
+                                    )}
+                                    <i
+                                        className="fa-regular fa-comment"
+                                        style={{ fontSize: "1.4em" }}
+                                    ></i>
+                                    {postsSaved[post.id] ? (
+                                        <i
+                                            className="fa-solid fa-bookmark"
+                                            style={{
+                                                fontSize: "1.4em",
+                                                marginLeft: "auto",
+                                            }}
+                                            onClick={()=>{
+                                                handlePostSave(post.id);
+                                            }}
+                                        ></i>
+                                    ) : (
+                                        <i
+                                            className="fa-regular fa-bookmark"
+                                            style={{
+                                                fontSize: "1.4em",
+                                                marginLeft: "auto",
+                                            }}
+                                            onClick={()=>{
+                                                handlePostSave(post.id);
+                                            }}
+                                        ></i>
+                                    )}
                                 </Flex>
-                                {/* <Link
-                                    color="teal.500"
-                                    onClick={() => handlePostLike(post.id)}
-                                >
-                                    Liker
-                                </Link>
-                                <Link
-                                    color="teal.500"
-                                    onClick={() => handlePostSave(post.id)}
-                                >
-                                    Enregistrer
-                                </Link> */}
                                 <Text fontWeight="medium">
-                                    {post.likes.length} {"J'aime"}
+                                    {postsLikesCount[post.id]} {"J'aime"}
                                 </Text>
                                 {post.description && (
                                     <Text>
@@ -154,9 +263,9 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                             href={`profil/${post.user.username}`}
                                             fontWeight="medium"
                                         >
-                                            {post.user.username}{" "}
+                                            {post.user.username}
                                         </Link>
-                                        {post.description}
+                                        {" "}{post.description}
                                     </Text>
                                 )}
                                 <Text>
@@ -170,7 +279,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                             commentInputs[post.id - 1]
                                         )
                                     }
-                                    style={{display : "flex"}}
+                                    style={{ display: "flex" }}
                                 >
                                     <Input
                                         placeholder="Ajouter un commentaire"
