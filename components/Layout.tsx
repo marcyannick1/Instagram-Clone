@@ -1,6 +1,6 @@
 import { Box } from "@chakra-ui/react";
 import React from "react";
-import Nav from "./Nav";
+import Nav from "./Nav/Nav";
 
 export default function Layout({ children, style, loggedInUser } :any) {
     return (
