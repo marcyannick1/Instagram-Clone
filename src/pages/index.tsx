@@ -1,12 +1,13 @@
 import { GetServerSideProps } from "next/types";
 import { verifyToken } from "../../utils/jwt";
-import { Button, Link, Textarea } from "@chakra-ui/react";
+import { Button, Flex, Link, Text, Input } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import PostsForm from "../../components/PostsForm";
 import { getFollowedUsersPosts } from "../../utils/user";
 import { useState } from "react";
 import Layout from "../../components/Layout";
+import Image from "next/image";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const token = context.req.cookies.jwt;
@@ -93,15 +94,121 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
 
     return (
         <Layout>
-            <div>Bonjour {loggedInUser.name}</div>
             <Link onClick={Logout}>Se déconnecter</Link>
-            <PostsForm loggedInUser={loggedInUser} />
-            <div>
+            <main>
+                <div>
+                    {usersFollowedPosts.map((post: any, indx: number) => {
+                        return (
+                            <Flex flexDir="column" key={indx} py={5} w={500} gap={2} margin="auto" borderBottom="1px" borderColor="gray.200">
+                                <Flex alignItems="center" gap={2}>
+                                    <Link href={`profil/${post.user.username}`}>
+                                        <Image
+                                            src={post.user.photo}
+                                            alt={""}
+                                            width="30"
+                                            height="30"
+                                            style={{ borderRadius: "50%", border :"1px solid gainsboro" }}
+                                        />
+                                    </Link>
+                                    <Link
+                                        href={`profil/${post.user.username}`}
+                                        fontWeight="medium"
+                                        variant="g"
+                                    >
+                                        {post.user.username}
+                                    </Link>
+                                    <Text>{post.date}</Text>
+                                </Flex>
+                                <Image
+                                    src={post.media[0].url}
+                                    width={500}
+                                    height={0}
+                                    style={{ borderRadius: "4px" }}
+                                    alt="profil pic"
+                                />
+                                <Flex gap={4}>
+                                    <i className="fa-regular fa-heart" style={{fontSize : "1.4em"}}></i>
+                                    <i className="fa-regular fa-comment" style={{fontSize : "1.4em"}}></i>
+                                    <i className="fa-regular fa-bookmark" style={{fontSize : "1.4em", marginLeft: "auto"}}></i>
+                                </Flex>
+                                {/* <Link
+                                    color="teal.500"
+                                    onClick={() => handlePostLike(post.id)}
+                                >
+                                    Liker
+                                </Link>
+                                <Link
+                                    color="teal.500"
+                                    onClick={() => handlePostSave(post.id)}
+                                >
+                                    Enregistrer
+                                </Link> */}
+                                <Text fontWeight="medium">
+                                    {post.likes.length} {"J'aime"}
+                                </Text>
+                                {post.description && (
+                                    <Text>
+                                        <Link
+                                            href={`profil/${post.user.username}`}
+                                            fontWeight="medium"
+                                        >
+                                            {post.user.username}{" "}
+                                        </Link>
+                                        {post.description}
+                                    </Text>
+                                )}
+                                <Text>
+                                    Afficher les {post.comments.length}{" "}
+                                    commentaire(s)
+                                </Text>
+                                <form
+                                    onSubmit={() =>
+                                        handlePostComment(
+                                            post.id,
+                                            commentInputs[post.id - 1]
+                                        )
+                                    }
+                                    style={{display : "flex"}}
+                                >
+                                    <Input
+                                        placeholder="Ajouter un commentaire"
+                                        onChange={handleCommentInputsChange}
+                                        name={(post.id - 1).toString()}
+                                        value={commentInputs[post.id - 1]}
+                                        variant="ghost"
+                                        padding={0}
+                                    />
+                                    {commentInputs[post.id - 1] && (
+                                        <Button
+                                            onClick={() =>
+                                                handlePostComment(
+                                                    post.id,
+                                                    commentInputs[post.id - 1]
+                                                )
+                                            }
+                                        >
+                                            Publier
+                                        </Button>
+                                    )}
+                                </form>
+                            </Flex>
+                        );
+                    })}
+                </div>
+            </main>
+
+            {/* /////////////////////////////////////////// */}
+            {/* <div>Bonjour {loggedInUser.name}</div>
+            <Link onClick={Logout}>Se déconnecter</Link>
+            <PostsForm loggedInUser={loggedInUser} /> */}
+            {/* <div>
                 Users Followed Posts :
                 {usersFollowedPosts.map((post: any, indx: number) => {
                     return (
                         <div key={indx} style={{ margin: "20px 0" }}>
-                            <Link href={`profil/${post.user.username}`}>{post.user.name}</Link>
+                            <Link href={`profil/${post.user.username}`}>
+                                {post.user.name}
+                            </Link>
                             <p>{post.date}</p>
                             <img src={post.media[0].url} width={300}></img>
                             <p>Description: {post.description}</p>
@@ -142,7 +249,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                         </div>
                     );
                 })}
-            </div>
+            </div> */}
         </Layout>
     );
 }
