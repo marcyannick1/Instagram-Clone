@@ -3,7 +3,6 @@ import { verifyToken } from "../../utils/jwt";
 import { Flex, Link, Text, Input, Spinner } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import PostsForm from "../../components/PostsForm";
 import {
     alreadyLiked,
     alreadySaved,

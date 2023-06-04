@@ -1,9 +1,10 @@
-import { Button, Flex, Link } from "@chakra-ui/react";
+import { Button, Flex, Link, useDisclosure } from "@chakra-ui/react";
 import Image from "next/image";
 import NextLink from "next/link";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import Notifs from "./Notifs";
+import PostsForm from "./PostsForm";
 import Search from "./Search";
 
 export default function Nav({ loggedInUser }: any) {
@@ -11,6 +12,7 @@ export default function Nav({ loggedInUser }: any) {
 
     const [showSearchTab, setShowSearchTab] = useState(false);
     const [showNotifsTab, setShowNotifsTab] = useState(false);
+    const [showPostsFormTab, setShowPostsFormTab] = useState(false);
 
     const iconStyle = {
         fontSize: "1.5em",
@@ -155,19 +157,31 @@ export default function Nav({ loggedInUser }: any) {
                             Notifications
                         </Button>
                     </Link>
-                    <Link as={NextLink} href="#" w="full">
+                    <Link
+                        as={NextLink}
+                        href="#"
+                        w="full"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setShowPostsFormTab(!showPostsFormTab);
+                        }}
+                    >
                         <Button
                             variant="ghost"
                             justifyContent="start"
                             gap={2}
                             size="lg"
                             fontSize="1em"
-                            fontWeight="normal"
+                            fontWeight={showPostsFormTab ? "bold" : "normal"}
                             px={3}
                             w="full"
                             leftIcon={
                                 <i
-                                    className="fa-regular fa-square-plus"
+                                    className={`${
+                                        showPostsFormTab
+                                            ? "fa-solid"
+                                            : "fa-regular"
+                                    } fa-square-plus`}
                                     style={iconStyle}
                                 ></i>
                             }
@@ -240,6 +254,10 @@ export default function Nav({ loggedInUser }: any) {
             </Flex>
             {showSearchTab && <Search />}
             {showNotifsTab && <Notifs />}
+            <PostsForm
+                isOpen={showPostsFormTab}
+                setIsOpen={setShowPostsFormTab}
+            />
         </Flex>
     );
 }

@@ -33,7 +33,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const user = token
         ? await verifyToken(token, process.env.JWT_SECRET!)
         : null;
-    const loggedInUser = await getUserDatas(user.id)
+    const loggedInUser = await getUserDatas(user.id);
 
     const username: any = ctx.query.username;
     const userId = await getUserIdByUsername(username);
@@ -225,7 +225,6 @@ const Profil: NextPage<Props> = ({
                     borderBottom="1px"
                     borderColor="blackAlpha.300"
                 >
-                    <abbr title="Modifier la photo de profil">
                     <Box position="relative" mx={20}>
                         {imgLoading && (
                             <Spinner
@@ -249,23 +248,24 @@ const Profil: NextPage<Props> = ({
                             alt="profil pic"
                         />
                         {loggedInUser && loggedInUser.id == user.id && (
-                            <Input
-                                type="file"
-                                name="image"
-                                accept="image/*"
-                                onChange={handleImageChange}
-                                position="absolute"
-                                top="0"
-                                left="0"
-                                height="100%"
-                                width="100%"
-                                opacity={0}
-                                cursor="pointer"
-                                borderRadius="50%"
-                            />
+                            <abbr title="Modifier la photo de profil">
+                                <Input
+                                    type="file"
+                                    name="image"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                    position="absolute"
+                                    top="0"
+                                    left="0"
+                                    height="100%"
+                                    width="100%"
+                                    opacity={0}
+                                    cursor="pointer"
+                                    borderRadius="50%"
+                                />
+                            </abbr>
                         )}
                     </Box>
-                    </abbr>
                     <Flex flexDir="column" gap={4}>
                         <Flex gap={6} alignItems="center">
                             <Text fontWeight="medium" fontSize="1.2em">
@@ -305,7 +305,13 @@ const Profil: NextPage<Props> = ({
                     </Flex>
                 </Flex>
                 <UnorderedList display="flex" justifyContent="center" gap={14}>
-                    <ListItem fontWeight="medium" fontSize=".8em" listStyleType="none" borderTop="1px" py={4}>
+                    <ListItem
+                        fontWeight="medium"
+                        fontSize=".8em"
+                        listStyleType="none"
+                        borderTop="1px"
+                        py={4}
+                    >
                         <i
                             className="fa-solid fa-grid"
                             style={{ marginRight: "10px" }}
@@ -313,7 +319,12 @@ const Profil: NextPage<Props> = ({
                         PUBLICATIONS
                     </ListItem>
                     {loggedInUser && loggedInUser.id == user.id && (
-                        <ListItem fontWeight="medium" fontSize=".8em" listStyleType="none" py={4}>
+                        <ListItem
+                            fontWeight="medium"
+                            fontSize=".8em"
+                            listStyleType="none"
+                            py={4}
+                        >
                             <i
                                 className="fa-regular fa-bookmark"
                                 style={{ marginRight: "10px" }}
