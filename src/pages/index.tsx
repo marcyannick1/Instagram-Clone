@@ -1,6 +1,6 @@
 import { GetServerSideProps } from "next/types";
 import { verifyToken } from "../../utils/jwt";
-import { Button, Flex, Link, Text, Input, Spinner } from "@chakra-ui/react";
+import { Flex, Link, Text, Input, Spinner } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import PostsForm from "../../components/PostsForm";
@@ -13,6 +13,9 @@ import {
 import { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import Image from "next/image";
+import dayjs from "dayjs";
+import relativeTime from 'dayjs/plugin/relativeTime'
+import 'dayjs/locale/fr'
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const token = context.req.cookies.jwt;
@@ -56,6 +59,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 export default function Home({ loggedInUser, usersFollowedPosts }: any) {
     const router = useRouter();
+
+    dayjs.locale('fr')
+    dayjs.extend(relativeTime as any)
 
     const [commentInputs, setCommentInputs] = useState<string[]>([]);
     const [postsSaved, setPostsSaved] = useState<any>({});
@@ -220,7 +226,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                     >
                                         {post.user.username}
                                     </Link>
-                                    <Text>{post.date}</Text>
+                                    <Text color="blackAlpha.700" fontSize=".9em">• {dayjs(post.date).fromNow(true)}</Text>
                                 </Flex>
                                 <Image
                                     src={post.media[0].url}
