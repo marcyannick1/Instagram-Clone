@@ -1,6 +1,6 @@
 import { GetServerSideProps } from "next/types";
 import { verifyToken } from "../../utils/jwt";
-import { Button, Flex, Link, Text, Input } from "@chakra-ui/react";
+import { Button, Flex, Link, Text, Input, Spinner } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import PostsForm from "../../components/PostsForm";
@@ -61,23 +61,29 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
     const [postsSaved, setPostsSaved] = useState<any>({});
     const [postsLiked, setPostsLiked] = useState<any>({});
     const [postsLikesCount, setPostsLikesCount] = useState<any>({});
+    const [postsCommentsCount, setPostsCommentsCount] = useState<any>({});
+    const [postCommentLoading, setPostCommentLoading] = useState<any>({});
 
     useEffect(() => {
         for (const post of usersFollowedPosts) {
             setPostsSaved((previous: any) => {
                 return { ...previous, [post.id]: post.saved };
             });
-        }
 
-        for (const post of usersFollowedPosts) {
             setPostsLiked((previous: any) => {
                 return { ...previous, [post.id]: post.liked };
             });
-        }
 
-        for (const post of usersFollowedPosts) {
             setPostsLikesCount((previous: any) => {
                 return { ...previous, [post.id]: post.likes.length };
+            });
+
+            setPostsCommentsCount((previous: any) => {
+                return { ...previous, [post.id]: post.comments.length };
+            });
+
+            setPostCommentLoading((previous: any) => {
+                return { ...previous, [post.id]: false };
             });
         }
     }, []);
@@ -135,6 +141,12 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
     }
 
     function handlePostComment(postId: number, content: string) {
+        setPostCommentLoading((previous: any) => {
+            return {
+                ...previous,
+                [postId]: true,
+            };
+        });
         if (content) {
             axios({
                 method: "POST",
@@ -144,7 +156,24 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                     postId: postId,
                     content: content,
                 },
-            }).then((response) => console.log(response));
+            }).then((response) => {
+                setCommentInputs((prev: any) => {
+                    return [...prev, (prev[postId - 1] = "")];
+                });
+                setPostsCommentsCount((previous: any) => {
+                    return {
+                        ...previous,
+                        [postId]: postsCommentsCount[postId] + 1,
+                    };
+                });
+            }).finally(() => {
+                setPostCommentLoading((previous: any) => {
+                    return {
+                        ...previous,
+                        [postId]: false,
+                    };
+                });
+            })
         }
     }
 
@@ -154,8 +183,6 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
         updatedInputValues[name] = value;
         setCommentInputs(updatedInputValues);
     }
-
-    console.log(usersFollowedPosts);
 
     return (
         <Layout loggedInUser={loggedInUser}>
@@ -168,8 +195,8 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                 flexDir="column"
                                 key={indx}
                                 py={5}
-                                w={500}
-                                gap={2}
+                                w={450}
+                                gap={1.5}
                                 margin="auto"
                                 borderBottom="1px"
                                 borderColor="gray.200"
@@ -237,7 +264,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                                 fontSize: "1.4em",
                                                 marginLeft: "auto",
                                             }}
-                                            onClick={()=>{
+                                            onClick={() => {
                                                 handlePostSave(post.id);
                                             }}
                                         ></i>
@@ -248,7 +275,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                                 fontSize: "1.4em",
                                                 marginLeft: "auto",
                                             }}
-                                            onClick={()=>{
+                                            onClick={() => {
                                                 handlePostSave(post.id);
                                             }}
                                         ></i>
@@ -264,42 +291,61 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                             fontWeight="medium"
                                         >
                                             {post.user.username}
-                                        </Link>
-                                        {" "}{post.description}
+                                        </Link>{" "}
+                                        {post.description}
                                     </Text>
                                 )}
-                                <Text>
-                                    Afficher les {post.comments.length}{" "}
+                                <Text color="blackAlpha.700">
+                                    Afficher les {postsCommentsCount[post.id]}{" "}
                                     commentaire(s)
                                 </Text>
                                 <form
-                                    onSubmit={() =>
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
                                         handlePostComment(
                                             post.id,
                                             commentInputs[post.id - 1]
-                                        )
-                                    }
+                                        );
+                                    }}
                                     style={{ display: "flex" }}
                                 >
                                     <Input
-                                        placeholder="Ajouter un commentaire"
+                                        autoComplete="off"
+                                        placeholder="Ajouter un commentaire..."
                                         onChange={handleCommentInputsChange}
                                         name={(post.id - 1).toString()}
                                         value={commentInputs[post.id - 1]}
                                         variant="ghost"
                                         padding={0}
+                                        disabled={postCommentLoading[post.id]}
                                     />
                                     {commentInputs[post.id - 1] && (
-                                        <Button
-                                            onClick={() =>
+                                        postCommentLoading[post.id] ?
+                                        <Spinner
+                                            thickness="3px"
+                                            speed="0.75s"
+                                            emptyColor="gray.200"
+                                            color="blue.300"
+                                            size="sm"
+                                        />
+                                        :
+                                        <Link
+                                            onClick={(e) => {
+                                                e.preventDefault();
                                                 handlePostComment(
                                                     post.id,
                                                     commentInputs[post.id - 1]
-                                                )
-                                            }
+                                                );
+                                            }}
+                                            fontWeight="medium"
+                                            color="blue.300"
+                                            _hover={{ color: "blue.600" }}
+                                            style={{
+                                                textDecoration: "none",
+                                            }}
                                         >
                                             Publier
-                                        </Button>
+                                        </Link>
                                     )}
                                 </form>
                             </Flex>
