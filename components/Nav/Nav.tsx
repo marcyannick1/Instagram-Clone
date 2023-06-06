@@ -255,6 +255,7 @@ export default function Nav({ loggedInUser }: any) {
             {showSearchTab && <Search />}
             {showNotifsTab && <Notifs />}
             <PostsForm
+                loggedInUser={loggedInUser}
                 isOpen={showPostsFormTab}
                 setIsOpen={setShowPostsFormTab}
             />

@@ -13,8 +13,8 @@ import { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import Image from "next/image";
 import dayjs from "dayjs";
-import relativeTime from 'dayjs/plugin/relativeTime'
-import 'dayjs/locale/fr'
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/fr";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const token = context.req.cookies.jwt;
@@ -59,8 +59,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 export default function Home({ loggedInUser, usersFollowedPosts }: any) {
     const router = useRouter();
 
-    dayjs.locale('fr')
-    dayjs.extend(relativeTime as any)
+    dayjs.locale("fr");
+    dayjs.extend(relativeTime as any);
 
     const [commentInputs, setCommentInputs] = useState<string[]>([]);
     const [postsSaved, setPostsSaved] = useState<any>({});
@@ -161,24 +161,26 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                     postId: postId,
                     content: content,
                 },
-            }).then((response) => {
-                setCommentInputs((prev: any) => {
-                    return [...prev, (prev[postId - 1] = "")];
-                });
-                setPostsCommentsCount((previous: any) => {
-                    return {
-                        ...previous,
-                        [postId]: postsCommentsCount[postId] + 1,
-                    };
-                });
-            }).finally(() => {
-                setPostCommentLoading((previous: any) => {
-                    return {
-                        ...previous,
-                        [postId]: false,
-                    };
-                });
             })
+                .then((response) => {
+                    setCommentInputs((prev: any) => {
+                        return [...prev, (prev[postId - 1] = "")];
+                    });
+                    setPostsCommentsCount((previous: any) => {
+                        return {
+                            ...previous,
+                            [postId]: postsCommentsCount[postId] + 1,
+                        };
+                    });
+                })
+                .finally(() => {
+                    setPostCommentLoading((previous: any) => {
+                        return {
+                            ...previous,
+                            [postId]: false,
+                        };
+                    });
+                });
         }
     }
 
@@ -225,7 +227,12 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                     >
                                         {post.user.username}
                                     </Link>
-                                    <Text color="blackAlpha.700" fontSize=".9em">• {dayjs(post.date).fromNow(true)}</Text>
+                                    <Text
+                                        color="blackAlpha.700"
+                                        fontSize=".9em"
+                                    >
+                                        • {dayjs(post.date).fromNow(true)}
+                                    </Text>
                                 </Flex>
                                 <Image
                                     src={post.media[0].url}
@@ -324,34 +331,36 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                         padding={0}
                                         disabled={postCommentLoading[post.id]}
                                     />
-                                    {commentInputs[post.id - 1] && (
-                                        postCommentLoading[post.id] ?
-                                        <Spinner
-                                            thickness="3px"
-                                            speed="0.75s"
-                                            emptyColor="gray.200"
-                                            color="blue.300"
-                                            size="sm"
-                                        />
-                                        :
-                                        <Link
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                handlePostComment(
-                                                    post.id,
-                                                    commentInputs[post.id - 1]
-                                                );
-                                            }}
-                                            fontWeight="medium"
-                                            color="blue.300"
-                                            _hover={{ color: "blue.600" }}
-                                            style={{
-                                                textDecoration: "none",
-                                            }}
-                                        >
-                                            Publier
-                                        </Link>
-                                    )}
+                                    {commentInputs[post.id - 1] &&
+                                        (postCommentLoading[post.id] ? (
+                                            <Spinner
+                                                thickness="3px"
+                                                speed="0.75s"
+                                                emptyColor="gray.200"
+                                                color="blue.300"
+                                                size="sm"
+                                            />
+                                        ) : (
+                                            <Link
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    handlePostComment(
+                                                        post.id,
+                                                        commentInputs[
+                                                            post.id - 1
+                                                        ]
+                                                    );
+                                                }}
+                                                fontWeight="medium"
+                                                color="blue.300"
+                                                _hover={{ color: "blue.600" }}
+                                                style={{
+                                                    textDecoration: "none",
+                                                }}
+                                            >
+                                                Publier
+                                            </Link>
+                                        ))}
                                 </form>
                             </Flex>
                         );
