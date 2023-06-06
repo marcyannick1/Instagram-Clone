@@ -11,23 +11,38 @@ import {
     Popover,
     PopoverTrigger,
     PopoverContent,
+    AlertDialog,
+    AlertDialogOverlay,
+    AlertDialogContent,
+    Text,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import Cropper from "react-easy-crop";
 
-export default function PostsForm({ loggedInUser, isOpen, setIsOpen }: any) {
+export default function PostsForm({
+    loggedInUser,
+    modalIsOpen,
+    setModalIsOpen,
+}: any) {
     const router = useRouter();
 
-    const handleClose = () => {
-        setIsOpen(false);
+    const handleModalClose = () => {
+        setModalIsOpen(false);
         setSelectedImages([]);
+        setPreview({ url: "", type: "" })
+        setPreviewIndex(0)
+        setCropValues([])
+        setZoomValues([])
+        setAspectRatio(undefined)
     };
+
+    const cancelAlertRef: any = useRef();
+    const [alertIsOpen, setAlertIsOpen] = useState(true);
 
     const [preview, setPreview] = useState<any>({ url: "", type: "" });
     const [previewIndex, setPreviewIndex] = useState<any>(0);
-    const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [cropValues, setCropValues] = useState([]);
     const [zoom, setZoom] = useState(1);
     const [zoomValues, setZoomValues] = useState([]);
@@ -45,13 +60,12 @@ export default function PostsForm({ loggedInUser, isOpen, setIsOpen }: any) {
         setZoom(newZoomValues[imageIndex]);
     };
 
-    const handleCropChange = (imageIndex: number, croppedArea :any) => {
+    const handleCropChange = (imageIndex: number, croppedArea: any) => {
         const newCropValues: any = [...cropValues];
-        newCropValues[imageIndex] = {x : croppedArea.x, y : croppedArea.y};
+        newCropValues[imageIndex] = { x: croppedArea.x, y: croppedArea.y };
         setCropValues(newCropValues);
-        console.log(newCropValues);
     };
-    
+
     const previewFile = useCallback(
         (file: File) => {
             const fileReader = new FileReader();
@@ -109,7 +123,12 @@ export default function PostsForm({ loggedInUser, isOpen, setIsOpen }: any) {
 
     return (
         <>
-            <Modal isOpen={isOpen} onClose={handleClose} size="lg" isCentered>
+            <Modal
+                isOpen={modalIsOpen}
+                onClose={() => setAlertIsOpen(true)}
+                size="lg"
+                isCentered
+            >
                 <ModalOverlay backgroundColor="blackAlpha.700" />
                 <ModalContent borderRadius={10}>
                     <ModalCloseButton />
@@ -475,9 +494,19 @@ export default function PostsForm({ loggedInUser, isOpen, setIsOpen }: any) {
                                             ? preview.url
                                             : undefined
                                     }
-                                    crop={cropValues[previewIndex]}
+                                    crop={
+                                        cropValues[previewIndex] || {
+                                            x: 0,
+                                            y: 0,
+                                        }
+                                    }
                                     zoom={zoom}
-                                    onCropChange={(croppedArea) => handleCropChange(previewIndex, croppedArea)}
+                                    onCropChange={(croppedArea) =>
+                                        handleCropChange(
+                                            previewIndex,
+                                            croppedArea
+                                        )
+                                    }
                                     onZoomChange={setZoom}
                                     aspect={aspectRatio}
                                     objectFit={"horizontal-cover"}
@@ -505,7 +534,6 @@ export default function PostsForm({ loggedInUser, isOpen, setIsOpen }: any) {
                                         }}
                                         onClick={() => {
                                             setPreviewIndex(previewIndex - 1);
-
                                         }}
                                     >
                                         <i
@@ -551,6 +579,73 @@ export default function PostsForm({ loggedInUser, isOpen, setIsOpen }: any) {
                     )}
                 </ModalContent>
             </Modal>
+            <AlertDialog
+                isOpen={alertIsOpen}
+                onClose={() => setAlertIsOpen(false)}
+                leastDestructiveRef={cancelAlertRef}
+                isCentered
+            >
+                <AlertDialogOverlay>
+                    <AlertDialogContent borderRadius={12}>
+                        <Flex flexDir="column" justifyContent="center">
+                            <Box
+                                textAlign="center"
+                                py={7}
+                                borderBottom="1px"
+                                borderColor="blackAlpha.300"
+                            >
+                                <Text fontSize="xl" fontWeight="normal">
+                                    Abandonner la publication ?
+                                </Text>
+                                <Text fontSize="sm" color="blackAlpha.600">
+                                    Si vous quittez la publication, vos
+                                    modifications ne seront pas enregistrées.
+                                </Text>
+                            </Box>
+                            <Box
+                                borderBottom="1px"
+                                textAlign="center"
+                                borderColor="blackAlpha.300"
+                            >
+                                <Button
+                                    _hover={{
+                                        opacity: 0.5,
+                                        backgroundColor: "transparent",
+                                    }}
+                                    size="lg"
+                                    fontSize="sm"
+                                    variant="ghost"
+                                    color="red.400"
+                                    fontWeight="bold"
+                                    w="full"
+                                    onClick={() => {
+                                        handleModalClose()
+                                        setAlertIsOpen(false);
+                                    }}
+                                >
+                                    Abandonner
+                                </Button>
+                            </Box>
+                            <Box textAlign="center">
+                                <Button
+                                    _hover={{
+                                        opacity: 0.5,
+                                        backgroundColor: "transparent",
+                                    }}
+                                    size="lg"
+                                    fontSize="sm"
+                                    variant="ghost"
+                                    w="full"
+                                    ref={cancelAlertRef}
+                                    onClick={() => setAlertIsOpen(false)}
+                                >
+                                    Annuler
+                                </Button>
+                            </Box>
+                        </Flex>
+                    </AlertDialogContent>
+                </AlertDialogOverlay>
+            </AlertDialog>
             {/* ///////////////////// */}
             {/* <div>
                 <Heading size="md">Créer une nouvelle publication</Heading>

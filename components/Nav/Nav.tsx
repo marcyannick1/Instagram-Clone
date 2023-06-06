@@ -256,8 +256,8 @@ export default function Nav({ loggedInUser }: any) {
             {showNotifsTab && <Notifs />}
             <PostsForm
                 loggedInUser={loggedInUser}
-                isOpen={showPostsFormTab}
-                setIsOpen={setShowPostsFormTab}
+                modalIsOpen={showPostsFormTab}
+                setModalIsOpen={setShowPostsFormTab}
             />
         </Flex>
     );
