@@ -31,15 +31,15 @@ export default function PostsForm({
     const handleModalClose = () => {
         setModalIsOpen(false);
         setSelectedImages([]);
-        setPreview({ url: "", type: "" })
-        setPreviewIndex(0)
-        setCropValues([])
-        setZoomValues([])
-        setAspectRatio(undefined)
+        setPreview({ url: "", type: "" });
+        setPreviewIndex(0);
+        setCropValues([]);
+        setZoomValues([]);
+        setAspectRatio(undefined);
     };
 
     const cancelAlertRef: any = useRef();
-    const [alertIsOpen, setAlertIsOpen] = useState(true);
+    const [alertIsOpen, setAlertIsOpen] = useState(false);
 
     const [preview, setPreview] = useState<any>({ url: "", type: "" });
     const [previewIndex, setPreviewIndex] = useState<any>(0);
@@ -62,7 +62,7 @@ export default function PostsForm({
 
     const handleCropChange = (imageIndex: number, croppedArea: any) => {
         const newCropValues: any = [...cropValues];
-        newCropValues[imageIndex] = { x: croppedArea.x, y: croppedArea.y };
+        newCropValues[imageIndex] = croppedArea;
         setCropValues(newCropValues);
     };
 
@@ -130,8 +130,14 @@ export default function PostsForm({
                 isCentered
             >
                 <ModalOverlay backgroundColor="blackAlpha.700" />
+                <ModalCloseButton
+                    top={5}
+                    right={5}
+                    size="lg"
+                    color="white"
+                    zIndex={10000}
+                />
                 <ModalContent borderRadius={10}>
-                    <ModalCloseButton />
                     {selectedImages.length === 0 && (
                         <Flex flexDir="column">
                             <Heading
@@ -176,11 +182,7 @@ export default function PostsForm({
                                     ></path>
                                 </svg>
                                 <form>
-                                    <Button
-                                        size="sm"
-                                        colorScheme="twitter"
-                                        cursor="pointer"
-                                    >
+                                    <Button size="sm" colorScheme="twitter">
                                         {"Sélectionner sur l'ordinateur"}
                                         <Input
                                             type="file"
@@ -198,16 +200,22 @@ export default function PostsForm({
                     {/* /////////// */}
                     {selectedImages.length > 0 && (
                         <Flex flexDir="column">
-                            <Heading
-                                size="sm"
-                                fontWeight="medium"
-                                py={3}
+                            <Flex
                                 borderBottom="1px"
                                 borderColor="gray.300"
-                                textAlign="center"
+                                justifyContent="center"
+                                alignItems="center"
+                                position="relative"
                             >
-                                Rogner
-                            </Heading>
+                                <Heading
+                                    size="sm"
+                                    fontWeight="medium"
+                                    py={3}
+                                >
+                                    Rogner
+                                </Heading>
+                                <Box role="button" position="absolute" right={3} fontWeight="medium" color="blue.400">Suivant</Box>
+                            </Flex>
                             <Flex
                                 height={500}
                                 position="relative"
@@ -619,7 +627,7 @@ export default function PostsForm({
                                     fontWeight="bold"
                                     w="full"
                                     onClick={() => {
-                                        handleModalClose()
+                                        handleModalClose();
                                         setAlertIsOpen(false);
                                     }}
                                 >
