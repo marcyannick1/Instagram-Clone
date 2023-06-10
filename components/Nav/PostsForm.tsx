@@ -15,9 +15,11 @@ import {
     AlertDialogOverlay,
     AlertDialogContent,
     Text,
+    Textarea,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
+import Image from "next/image";
 import React, { useCallback, useEffect, useState, useRef } from "react";
 import Cropper from "react-easy-crop";
 
@@ -30,7 +32,8 @@ export default function PostsForm({
 
     const handleModalClose = () => {
         setModalIsOpen(false);
-        setSelectedImages([]);
+        setSelectedMedias([]);
+        setSelectedMediasBuffers([]);
         setPreview({ url: "", type: "" });
         setPreviewIndex(0);
         setCropValues([]);
@@ -41,17 +44,25 @@ export default function PostsForm({
     const cancelAlertRef: any = useRef();
     const [alertIsOpen, setAlertIsOpen] = useState(false);
 
+    const [selectedMedias, setSelectedMedias] = useState<any>([]);
+    const [selectedMediasBuffers, setSelectedMediasBuffers] = useState<any>([]);
+
     const [preview, setPreview] = useState<any>({ url: "", type: "" });
     const [previewIndex, setPreviewIndex] = useState<any>(0);
-    const [cropValues, setCropValues] = useState([]);
+    const [cropValues, setCropValues] = useState<any>([]);
+    const [completedCropValues, setCompletedCropValues] = useState<any>([]);
     const [zoom, setZoom] = useState(1);
     const [zoomValues, setZoomValues] = useState([]);
     const [aspectRatio, setAspectRatio] = useState<undefined | number>(
         undefined
     );
 
-    const [selectedImages, setSelectedImages] = useState<any>([]);
     const [desc, setDesc] = useState<string>("");
+
+    const handleMediasChange = (e: any) => {
+        setSelectedMedias(e.target.files);
+        previewFile(e.target.files[0]);
+    };
 
     const handleZoomChange = (event: any, imageIndex: number) => {
         const newZoomValues: any = [...zoomValues];
@@ -64,6 +75,15 @@ export default function PostsForm({
         const newCropValues: any = [...cropValues];
         newCropValues[imageIndex] = croppedArea;
         setCropValues(newCropValues);
+    };
+
+    const handleCompletedCropChange = (
+        imageIndex: number,
+        croppedArea: any
+    ) => {
+        const newCompletedCropValues: any = [...completedCropValues];
+        newCompletedCropValues[imageIndex] = croppedArea;
+        setCompletedCropValues(newCompletedCropValues);
     };
 
     const previewFile = useCallback(
@@ -83,21 +103,44 @@ export default function PostsForm({
         [preview]
     );
 
-    const handleImagesChange = (e: any) => {
-        setSelectedImages(e.target.files);
-        previewFile(e.target.files[0]);
+    const handleMediasResize = () => {
+        if (selectedMedias.length > 0) {
+            const formData = new FormData();
+            for (var i = 0; i < selectedMedias.length; i++) {
+                formData.append("image" + i, selectedMedias[i]);
+            }
+            for (var i = 0; i < cropValues.length; i++) {
+                formData.append(
+                    "crop" + i,
+                    JSON.stringify(completedCropValues[i])
+                );
+            }
+
+            axios({
+                method: "POST",
+                url: "/api/resize",
+                data: formData,
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }).then((response: any) => {
+                console.log(response.data.files);
+                setSelectedMediasBuffers(response.data.files);
+            });
+        }
     };
 
     const handleDescChange = (e: any) => {
         setDesc(e.target.value);
     };
 
-    const handleImagesUpload = (e: any) => {
-        if (selectedImages) {
+    const handleMediasUpload = () => {
+        if (selectedMedias) {
             const formData = new FormData();
-            for (var i = 0; i < selectedImages.length; i++) {
-                formData.append("image" + (i + 1), selectedImages[i]);
-            }
+            // for (var i = 0; i < selectedMedias.length; i++) {
+            //     formData.append("image" + (i + 1), selectedMedias[i]);
+            // }
+            formData.append("buffers", JSON.stringify(selectedMediasBuffers));
 
             formData.append("loggedInUserId", loggedInUser.id);
             formData.append("description", desc);
@@ -110,16 +153,16 @@ export default function PostsForm({
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
-            }).then(() => router.reload());
+            }).then((res) => console.log(res));
         }
     };
 
     useEffect(() => {
-        if (selectedImages.length > 0) {
+        if (selectedMedias.length > 0) {
             setZoom(zoomValues[previewIndex] || 1);
-            previewFile(selectedImages[previewIndex]);
+            previewFile(selectedMedias[previewIndex]);
         }
-    }, [selectedImages, previewIndex, previewFile, zoomValues]);
+    }, [selectedMedias, previewIndex, previewFile, zoomValues]);
 
     return (
         <>
@@ -138,7 +181,7 @@ export default function PostsForm({
                     zIndex={10000}
                 />
                 <ModalContent borderRadius={10}>
-                    {selectedImages.length === 0 && (
+                    {selectedMedias.length === 0 && (
                         <Flex flexDir="column">
                             <Heading
                                 size="sm"
@@ -188,7 +231,7 @@ export default function PostsForm({
                                             type="file"
                                             multiple
                                             accept="image/*, video/*"
-                                            onChange={handleImagesChange}
+                                            onChange={handleMediasChange}
                                             position="absolute"
                                             opacity={0}
                                         />
@@ -198,38 +241,366 @@ export default function PostsForm({
                         </Flex>
                     )}
                     {/* /////////// */}
-                    {selectedImages.length > 0 && (
-                        <Flex flexDir="column">
-                            <Flex
-                                borderBottom="1px"
-                                borderColor="gray.300"
-                                justifyContent="center"
-                                alignItems="center"
-                                position="relative"
-                            >
-                                <Heading
-                                    size="sm"
-                                    fontWeight="medium"
-                                    py={3}
+                    {selectedMedias.length > 0 &&
+                        selectedMediasBuffers.length === 0 && (
+                            <Flex flexDir="column">
+                                <Flex
+                                    borderBottom="1px"
+                                    borderColor="gray.300"
+                                    justifyContent="center"
+                                    alignItems="center"
+                                    position="relative"
                                 >
-                                    Rogner
-                                </Heading>
-                                <Box role="button" position="absolute" right={3} fontWeight="medium" color="blue.400">Suivant</Box>
-                            </Flex>
-                            <Flex
-                                height={500}
-                                position="relative"
-                                justifyContent="center"
-                                alignItems="center"
-                                flexDir="column"
-                                gap={5}
-                                borderRadius={10}
-                            >
-                                <Popover placement="top">
-                                    <PopoverTrigger>
+                                    <Heading
+                                        size="sm"
+                                        fontWeight="medium"
+                                        py={3}
+                                    >
+                                        Rogner
+                                    </Heading>
+                                    <Box
+                                        role="button"
+                                        position="absolute"
+                                        right={3}
+                                        fontWeight="medium"
+                                        color="blue.400"
+                                        onClick={handleMediasResize}
+                                    >
+                                        Suivant
+                                    </Box>
+                                </Flex>
+                                <Flex
+                                    height={500}
+                                    position="relative"
+                                    justifyContent="center"
+                                    alignItems="center"
+                                    flexDir="column"
+                                    gap={5}
+                                    borderRadius={10}
+                                >
+                                    <Popover placement="top">
+                                        <PopoverTrigger>
+                                            <Button
+                                                position="absolute"
+                                                bottom={2}
+                                                left={2}
+                                                zIndex={2}
+                                                borderRadius="50%"
+                                                padding={0}
+                                                backgroundColor="black"
+                                                size="sm"
+                                                opacity={0.8}
+                                                _hover={{
+                                                    color: "black",
+                                                    opacity: 0.5,
+                                                }}
+                                            >
+                                                <i
+                                                    className="fa-light fa-crop-simple"
+                                                    style={{
+                                                        zIndex: 2,
+                                                        color: "white",
+                                                    }}
+                                                ></i>
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent
+                                            w="max-content"
+                                            border="none"
+                                            // opacity=".6 !important"
+                                            borderRadius={10}
+                                            backgroundColor="transparent"
+                                        >
+                                            <Flex
+                                                flexDir="column"
+                                                w="max-content"
+                                                backgroundColor="rgba(0,0,0,.6)"
+                                                borderRadius={10}
+                                            >
+                                                <Box
+                                                    borderBottom="1px"
+                                                    borderColor="gray.300"
+                                                    onClick={() => {
+                                                        setAspectRatio(
+                                                            undefined
+                                                        );
+                                                    }}
+                                                    padding={1}
+                                                >
+                                                    <Button
+                                                        variant="ghost"
+                                                        gap={2}
+                                                        color="white"
+                                                        backgroundColor="transparent"
+                                                        _hover={{
+                                                            backgroundColor:
+                                                                "transparent",
+                                                        }}
+                                                        fontSize=".9em"
+                                                        fontWeight="normal"
+                                                        opacity={
+                                                            aspectRatio ===
+                                                            undefined
+                                                                ? 1
+                                                                : 0.4
+                                                        }
+                                                    >
+                                                        Original
+                                                        <i
+                                                            className="fa-regular fa-image"
+                                                            style={{
+                                                                fontSize:
+                                                                    "1.4em",
+                                                            }}
+                                                        ></i>
+                                                    </Button>
+                                                </Box>
+                                                <Box
+                                                    borderBottom="1px"
+                                                    borderColor="gray.300"
+                                                    onClick={() => {
+                                                        setAspectRatio(1 / 1);
+                                                    }}
+                                                    padding={1}
+                                                >
+                                                    <Button
+                                                        variant="ghost"
+                                                        gap={2}
+                                                        color="white"
+                                                        backgroundColor="transparent"
+                                                        _hover={{
+                                                            backgroundColor:
+                                                                "transparent",
+                                                        }}
+                                                        fontSize=".9em"
+                                                        fontWeight="normal"
+                                                        opacity={
+                                                            aspectRatio ===
+                                                            1 / 1
+                                                                ? 1
+                                                                : 0.4
+                                                        }
+                                                    >
+                                                        1:1
+                                                        <i
+                                                            className="fa-regular fa-square"
+                                                            style={{
+                                                                fontSize:
+                                                                    "1.4em",
+                                                            }}
+                                                        ></i>
+                                                    </Button>
+                                                </Box>
+                                                <Box
+                                                    borderBottom="1px"
+                                                    borderColor="gray.300"
+                                                    onClick={() => {
+                                                        setAspectRatio(4 / 5);
+                                                    }}
+                                                    padding={1}
+                                                >
+                                                    <Button
+                                                        variant="ghost"
+                                                        gap={2}
+                                                        color="white"
+                                                        backgroundColor="transparent"
+                                                        _hover={{
+                                                            backgroundColor:
+                                                                "transparent",
+                                                        }}
+                                                        fontSize=".9em"
+                                                        fontWeight="normal"
+                                                        opacity={
+                                                            aspectRatio ===
+                                                            4 / 5
+                                                                ? 1
+                                                                : 0.4
+                                                        }
+                                                    >
+                                                        4:5
+                                                        <i
+                                                            className="fa-regular fa-rectangle-vertical"
+                                                            style={{
+                                                                fontSize:
+                                                                    "1.4em",
+                                                            }}
+                                                        ></i>
+                                                    </Button>
+                                                </Box>
+                                                <Box
+                                                    onClick={() => {
+                                                        setAspectRatio(16 / 9);
+                                                    }}
+                                                    padding={1}
+                                                >
+                                                    <Button
+                                                        variant="ghost"
+                                                        gap={2}
+                                                        color="white"
+                                                        backgroundColor="transparent"
+                                                        _hover={{
+                                                            backgroundColor:
+                                                                "transparent",
+                                                        }}
+                                                        fontSize=".9em"
+                                                        fontWeight="normal"
+                                                        opacity={
+                                                            aspectRatio ===
+                                                            16 / 9
+                                                                ? 1
+                                                                : 0.4
+                                                        }
+                                                    >
+                                                        16:9
+                                                        <i
+                                                            className="fa-regular fa-rectangle-wide"
+                                                            style={{
+                                                                fontSize:
+                                                                    "1.4em",
+                                                            }}
+                                                        ></i>
+                                                    </Button>
+                                                </Box>
+                                            </Flex>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <Popover placement="top">
+                                        <PopoverTrigger>
+                                            <Button
+                                                position="absolute"
+                                                bottom={2}
+                                                left={14}
+                                                zIndex={2}
+                                                borderRadius="50%"
+                                                padding={0}
+                                                backgroundColor="black"
+                                                size="sm"
+                                                opacity={0.8}
+                                                _hover={{
+                                                    color: "black",
+                                                    opacity: 0.5,
+                                                }}
+                                            >
+                                                <i
+                                                    className="fa-light fa-magnifying-glass"
+                                                    style={{
+                                                        zIndex: 2,
+                                                        color: "white",
+                                                    }}
+                                                ></i>
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent
+                                            border="none"
+                                            width={150}
+                                            borderRadius={6}
+                                            backgroundColor="transparent"
+                                        >
+                                            <Flex
+                                                padding={4}
+                                                backgroundColor="rgba(0, 0, 0, .6)"
+                                                borderRadius={6}
+                                            >
+                                                <Input
+                                                    type="range"
+                                                    min={1}
+                                                    max={3}
+                                                    value={
+                                                        zoomValues[
+                                                            previewIndex
+                                                        ] || 1
+                                                    }
+                                                    step={0.1}
+                                                    backgroundColor="white"
+                                                    height="1px"
+                                                    padding={0}
+                                                    border="none"
+                                                    outline="none"
+                                                    onChange={(e) =>
+                                                        handleZoomChange(
+                                                            e,
+                                                            previewIndex
+                                                        )
+                                                    }
+                                                />
+                                            </Flex>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <Popover>
+                                        <PopoverTrigger>
+                                            <Button
+                                                position="absolute"
+                                                bottom={2}
+                                                right={2}
+                                                zIndex={2}
+                                                borderRadius="50%"
+                                                padding={0}
+                                                backgroundColor="black"
+                                                size="sm"
+                                                opacity={0.8}
+                                                _hover={{
+                                                    color: "black",
+                                                    opacity: 0.5,
+                                                }}
+                                            >
+                                                <i
+                                                    className="fa-light fa-clone"
+                                                    style={{
+                                                        zIndex: 2,
+                                                        color: "white",
+                                                    }}
+                                                ></i>
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent></PopoverContent>
+                                    </Popover>
+                                    <Cropper
+                                        image={
+                                            preview.type === "image"
+                                                ? preview.url
+                                                : undefined
+                                        }
+                                        video={
+                                            preview.type === "video"
+                                                ? preview.url
+                                                : undefined
+                                        }
+                                        crop={
+                                            cropValues[previewIndex] || {
+                                                x: 0,
+                                                y: 0,
+                                            }
+                                        }
+                                        zoom={zoom}
+                                        onCropChange={(croppedArea) =>
+                                            handleCropChange(
+                                                previewIndex,
+                                                croppedArea
+                                            )
+                                        }
+                                        onCropComplete={(
+                                            _,
+                                            croppedAreaPixels
+                                        ) =>
+                                            handleCompletedCropChange(
+                                                previewIndex,
+                                                croppedAreaPixels
+                                            )
+                                        }
+                                        onZoomChange={setZoom}
+                                        aspect={aspectRatio}
+                                        objectFit={"horizontal-cover"}
+                                        style={{
+                                            containerStyle: {
+                                                borderRadius: "0 0 10px 10px",
+                                            },
+                                        }}
+                                    />
+                                    {previewIndex > 0 && (
                                         <Button
                                             position="absolute"
-                                            bottom={2}
+                                            bottom="50%"
+                                            transform="translateY(50%)"
                                             left={2}
                                             zIndex={2}
                                             borderRadius="50%"
@@ -241,233 +612,27 @@ export default function PostsForm({
                                                 color: "black",
                                                 opacity: 0.5,
                                             }}
-                                        >
-                                            <i
-                                                className="fa-light fa-crop-simple"
-                                                style={{
-                                                    zIndex: 2,
-                                                    color: "white",
-                                                }}
-                                            ></i>
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent
-                                        w="max-content"
-                                        border="none"
-                                        // opacity=".6 !important"
-                                        borderRadius={10}
-                                        backgroundColor="transparent"
-                                    >
-                                        <Flex
-                                            flexDir="column"
-                                            w="max-content"
-                                            backgroundColor="rgba(0,0,0,.6)"
-                                            borderRadius={10}
-                                        >
-                                            <Box
-                                                borderBottom="1px"
-                                                borderColor="gray.300"
-                                                onClick={() => {
-                                                    setAspectRatio(undefined);
-                                                }}
-                                                padding={1}
-                                            >
-                                                <Button
-                                                    variant="ghost"
-                                                    gap={2}
-                                                    color="white"
-                                                    backgroundColor="transparent"
-                                                    _hover={{
-                                                        backgroundColor:
-                                                            "transparent",
-                                                    }}
-                                                    fontSize=".9em"
-                                                    fontWeight="normal"
-                                                    opacity={
-                                                        aspectRatio ===
-                                                        undefined
-                                                            ? 1
-                                                            : 0.4
-                                                    }
-                                                >
-                                                    Original
-                                                    <i
-                                                        className="fa-regular fa-image"
-                                                        style={{
-                                                            fontSize: "1.4em",
-                                                        }}
-                                                    ></i>
-                                                </Button>
-                                            </Box>
-                                            <Box
-                                                borderBottom="1px"
-                                                borderColor="gray.300"
-                                                onClick={() => {
-                                                    setAspectRatio(1 / 1);
-                                                }}
-                                                padding={1}
-                                            >
-                                                <Button
-                                                    variant="ghost"
-                                                    gap={2}
-                                                    color="white"
-                                                    backgroundColor="transparent"
-                                                    _hover={{
-                                                        backgroundColor:
-                                                            "transparent",
-                                                    }}
-                                                    fontSize=".9em"
-                                                    fontWeight="normal"
-                                                    opacity={
-                                                        aspectRatio === 1 / 1
-                                                            ? 1
-                                                            : 0.4
-                                                    }
-                                                >
-                                                    1:1
-                                                    <i
-                                                        className="fa-regular fa-square"
-                                                        style={{
-                                                            fontSize: "1.4em",
-                                                        }}
-                                                    ></i>
-                                                </Button>
-                                            </Box>
-                                            <Box
-                                                borderBottom="1px"
-                                                borderColor="gray.300"
-                                                onClick={() => {
-                                                    setAspectRatio(4 / 5);
-                                                }}
-                                                padding={1}
-                                            >
-                                                <Button
-                                                    variant="ghost"
-                                                    gap={2}
-                                                    color="white"
-                                                    backgroundColor="transparent"
-                                                    _hover={{
-                                                        backgroundColor:
-                                                            "transparent",
-                                                    }}
-                                                    fontSize=".9em"
-                                                    fontWeight="normal"
-                                                    opacity={
-                                                        aspectRatio === 4 / 5
-                                                            ? 1
-                                                            : 0.4
-                                                    }
-                                                >
-                                                    4:5
-                                                    <i
-                                                        className="fa-regular fa-rectangle-vertical"
-                                                        style={{
-                                                            fontSize: "1.4em",
-                                                        }}
-                                                    ></i>
-                                                </Button>
-                                            </Box>
-                                            <Box
-                                                onClick={() => {
-                                                    setAspectRatio(16 / 9);
-                                                }}
-                                                padding={1}
-                                            >
-                                                <Button
-                                                    variant="ghost"
-                                                    gap={2}
-                                                    color="white"
-                                                    backgroundColor="transparent"
-                                                    _hover={{
-                                                        backgroundColor:
-                                                            "transparent",
-                                                    }}
-                                                    fontSize=".9em"
-                                                    fontWeight="normal"
-                                                    opacity={
-                                                        aspectRatio === 16 / 9
-                                                            ? 1
-                                                            : 0.4
-                                                    }
-                                                >
-                                                    16:9
-                                                    <i
-                                                        className="fa-regular fa-rectangle-wide"
-                                                        style={{
-                                                            fontSize: "1.4em",
-                                                        }}
-                                                    ></i>
-                                                </Button>
-                                            </Box>
-                                        </Flex>
-                                    </PopoverContent>
-                                </Popover>
-                                <Popover placement="top">
-                                    <PopoverTrigger>
-                                        <Button
-                                            position="absolute"
-                                            bottom={2}
-                                            left={14}
-                                            zIndex={2}
-                                            borderRadius="50%"
-                                            padding={0}
-                                            backgroundColor="black"
-                                            size="sm"
-                                            opacity={0.8}
-                                            _hover={{
-                                                color: "black",
-                                                opacity: 0.5,
+                                            onClick={() => {
+                                                setPreviewIndex(
+                                                    previewIndex - 1
+                                                );
                                             }}
                                         >
                                             <i
-                                                className="fa-light fa-magnifying-glass"
+                                                className="fa-light fa-chevron-left"
                                                 style={{
                                                     zIndex: 2,
                                                     color: "white",
                                                 }}
                                             ></i>
                                         </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent
-                                        border="none"
-                                        width={150}
-                                        borderRadius={6}
-                                        backgroundColor="transparent"
-                                    >
-                                        <Flex
-                                            padding={4}
-                                            backgroundColor="rgba(0, 0, 0, .6)"
-                                            borderRadius={6}
-                                        >
-                                            <Input
-                                                type="range"
-                                                min={1}
-                                                max={3}
-                                                value={
-                                                    zoomValues[previewIndex] ||
-                                                    1
-                                                }
-                                                step={0.1}
-                                                backgroundColor="white"
-                                                height="1px"
-                                                padding={0}
-                                                border="none"
-                                                outline="none"
-                                                onChange={(e) =>
-                                                    handleZoomChange(
-                                                        e,
-                                                        previewIndex
-                                                    )
-                                                }
-                                            />
-                                        </Flex>
-                                    </PopoverContent>
-                                </Popover>
-                                <Popover>
-                                    <PopoverTrigger>
+                                    )}
+                                    {previewIndex <
+                                        selectedMedias.length - 1 && (
                                         <Button
                                             position="absolute"
-                                            bottom={2}
+                                            bottom="50%"
+                                            transform="translateY(50%)"
                                             right={2}
                                             zIndex={2}
                                             borderRadius="50%"
@@ -479,109 +644,73 @@ export default function PostsForm({
                                                 color: "black",
                                                 opacity: 0.5,
                                             }}
+                                            onClick={() => {
+                                                setPreviewIndex(
+                                                    previewIndex + 1
+                                                );
+                                            }}
                                         >
                                             <i
-                                                className="fa-light fa-clone"
+                                                className="fa-light fa-chevron-right"
                                                 style={{
                                                     zIndex: 2,
                                                     color: "white",
                                                 }}
                                             ></i>
                                         </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent></PopoverContent>
-                                </Popover>
-                                <Cropper
-                                    image={
-                                        preview.type === "image"
-                                            ? preview.url
-                                            : undefined
-                                    }
-                                    video={
-                                        preview.type === "video"
-                                            ? preview.url
-                                            : undefined
-                                    }
-                                    crop={
-                                        cropValues[previewIndex] || {
-                                            x: 0,
-                                            y: 0,
-                                        }
-                                    }
-                                    zoom={zoom}
-                                    onCropChange={(croppedArea) =>
-                                        handleCropChange(
-                                            previewIndex,
-                                            croppedArea
-                                        )
-                                    }
-                                    onZoomChange={setZoom}
-                                    aspect={aspectRatio}
-                                    objectFit={"horizontal-cover"}
-                                    style={{
-                                        containerStyle: {
-                                            borderRadius: "0 0 10px 10px",
-                                        },
-                                    }}
-                                />
-                                {previewIndex > 0 && (
-                                    <Button
-                                        position="absolute"
-                                        bottom="50%"
-                                        transform="translateY(50%)"
-                                        left={2}
-                                        zIndex={2}
-                                        borderRadius="50%"
-                                        padding={0}
-                                        backgroundColor="black"
-                                        size="sm"
-                                        opacity={0.8}
-                                        _hover={{
-                                            color: "black",
-                                            opacity: 0.5,
+                                    )}
+                                </Flex>
+                            </Flex>
+                        )}
+                    {selectedMediasBuffers.length > 0 && (
+                        <Flex flexDir="column">
+                            <Flex
+                                borderBottom="1px"
+                                borderColor="gray.300"
+                                justifyContent="center"
+                                alignItems="center"
+                                position="relative"
+                            >
+                                <Heading size="sm" fontWeight="medium" py={3}>
+                                    Légende
+                                </Heading>
+                                <Box
+                                    role="button"
+                                    position="absolute"
+                                    right={3}
+                                    fontWeight="medium"
+                                    color="blue.400"
+                                    onClick={handleMediasUpload}
+                                >
+                                    Publier
+                                </Box>
+                            </Flex>
+                            <Flex height={500} flexDir="column" gap={4} p={4}>
+                                <Flex gap={3} alignItems="center">
+                                    <Image
+                                        src={loggedInUser.photo}
+                                        alt="profil pic"
+                                        width={25}
+                                        height={25}
+                                        style={{
+                                            borderRadius: "50%",
+                                            border: "1px solid gainsboro",
                                         }}
-                                        onClick={() => {
-                                            setPreviewIndex(previewIndex - 1);
-                                        }}
-                                    >
-                                        <i
-                                            className="fa-light fa-chevron-left"
-                                            style={{
-                                                zIndex: 2,
-                                                color: "white",
-                                            }}
-                                        ></i>
-                                    </Button>
-                                )}
-                                {previewIndex < selectedImages.length - 1 && (
-                                    <Button
-                                        position="absolute"
-                                        bottom="50%"
-                                        transform="translateY(50%)"
-                                        right={2}
-                                        zIndex={2}
-                                        borderRadius="50%"
-                                        padding={0}
-                                        backgroundColor="black"
-                                        size="sm"
-                                        opacity={0.8}
-                                        _hover={{
-                                            color: "black",
-                                            opacity: 0.5,
-                                        }}
-                                        onClick={() => {
-                                            setPreviewIndex(previewIndex + 1);
-                                        }}
-                                    >
-                                        <i
-                                            className="fa-light fa-chevron-right"
-                                            style={{
-                                                zIndex: 2,
-                                                color: "white",
-                                            }}
-                                        ></i>
-                                    </Button>
-                                )}
+                                    />
+                                    <Text fontSize="sm" fontWeight="medium">
+                                        {loggedInUser.username}
+                                    </Text>
+                                </Flex>
+                                <form>
+                                    <Textarea
+                                        p={0}
+                                        variant="ghost"
+                                        placeholder="Ajoutez une légende..."
+                                        resize="none"
+                                        onChange={handleDescChange}
+                                        value={desc}
+                                    />
+                                </form>
                             </Flex>
                         </Flex>
                     )}
@@ -654,16 +783,17 @@ export default function PostsForm({
                     </AlertDialogContent>
                 </AlertDialogOverlay>
             </AlertDialog>
+
             {/* ///////////////////// */}
             {/* <div>
                 <Heading size="md">Créer une nouvelle publication</Heading>
                 <form>
-                    <Input type="file" multiple onChange={handleImagesChange} />
+                    <Input type="file" multiple onChange={handleMediasChange} />
                     <Textarea
                         placeholder="Entrez une légende"
                         onChange={handleDescChange}
                     />
-                    <Button onClick={handleImagesUpload}>Publier</Button>
+                    <Button onClick={handleMediasUpload}>Publier</Button>
                 </form>
             </div> */}
         </>

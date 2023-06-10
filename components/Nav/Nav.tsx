@@ -35,6 +35,7 @@ export default function Nav({ loggedInUser }: any) {
                     style={{
                         paddingLeft: ".75rem",
                         margin: "30px 0",
+                        cursor: "pointer"
                     }}
                     onClick={() => router.push("/")}
                 />
