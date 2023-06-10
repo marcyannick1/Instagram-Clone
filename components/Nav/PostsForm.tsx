@@ -33,7 +33,7 @@ export default function PostsForm({
     const handleModalClose = () => {
         setModalIsOpen(false);
         setSelectedMedias([]);
-        setSelectedMediasBuffers([]);
+        setStep(0)
         setPreview({ url: "", type: "" });
         setPreviewIndex(0);
         setCropValues([]);
@@ -45,7 +45,7 @@ export default function PostsForm({
     const [alertIsOpen, setAlertIsOpen] = useState(false);
 
     const [selectedMedias, setSelectedMedias] = useState<any>([]);
-    const [selectedMediasBuffers, setSelectedMediasBuffers] = useState<any>([]);
+    const [step, setStep] = useState(0)
 
     const [preview, setPreview] = useState<any>({ url: "", type: "" });
     const [previewIndex, setPreviewIndex] = useState<any>(0);
@@ -103,33 +103,6 @@ export default function PostsForm({
         [preview]
     );
 
-    const handleMediasResize = () => {
-        if (selectedMedias.length > 0) {
-            const formData = new FormData();
-            for (var i = 0; i < selectedMedias.length; i++) {
-                formData.append("image" + i, selectedMedias[i]);
-            }
-            for (var i = 0; i < cropValues.length; i++) {
-                formData.append(
-                    "crop" + i,
-                    JSON.stringify(completedCropValues[i])
-                );
-            }
-
-            axios({
-                method: "POST",
-                url: "/api/resize",
-                data: formData,
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            }).then((response: any) => {
-                console.log(response.data.files);
-                setSelectedMediasBuffers(response.data.files);
-            });
-        }
-    };
-
     const handleDescChange = (e: any) => {
         setDesc(e.target.value);
     };
@@ -137,14 +110,13 @@ export default function PostsForm({
     const handleMediasUpload = () => {
         if (selectedMedias) {
             const formData = new FormData();
-            // for (var i = 0; i < selectedMedias.length; i++) {
-            //     formData.append("image" + (i + 1), selectedMedias[i]);
-            // }
-            formData.append("buffers", JSON.stringify(selectedMediasBuffers));
+            for (var i = 0; i < selectedMedias.length; i++) {
+                formData.append("image" + (i + 1), selectedMedias[i]);
+            }
+            formData.append("cropValues", JSON.stringify(completedCropValues));
 
             formData.append("loggedInUserId", loggedInUser.id);
             formData.append("description", desc);
-            formData.append("uploadPreset", "Instagram-Clone-Posts");
 
             axios({
                 method: "POST",
@@ -153,7 +125,7 @@ export default function PostsForm({
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
-            }).then((res) => console.log(res));
+            }).then((res) => router.reload());
         }
     };
 
@@ -242,7 +214,7 @@ export default function PostsForm({
                     )}
                     {/* /////////// */}
                     {selectedMedias.length > 0 &&
-                        selectedMediasBuffers.length === 0 && (
+                        step === 0 && (
                             <Flex flexDir="column">
                                 <Flex
                                     borderBottom="1px"
@@ -264,7 +236,7 @@ export default function PostsForm({
                                         right={3}
                                         fontWeight="medium"
                                         color="blue.400"
-                                        onClick={handleMediasResize}
+                                        onClick={()=>setStep(1)}
                                     >
                                         Suivant
                                     </Box>
@@ -662,7 +634,7 @@ export default function PostsForm({
                                 </Flex>
                             </Flex>
                         )}
-                    {selectedMediasBuffers.length > 0 && (
+                    {step === 1 && (
                         <Flex flexDir="column">
                             <Flex
                                 borderBottom="1px"

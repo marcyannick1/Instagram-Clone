@@ -1,5 +1,11 @@
 import cloudinary from "cloudinary";
-import streamifier from "streamifier";
+
+interface Transformation {
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+}
 
 cloudinary.v2.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -8,50 +14,24 @@ cloudinary.v2.config({
 });
 
 export async function uploadMedia(
-    imagePath: any,
+    mediaPath: any,
     uploadPreset: any,
-    publicId?: string
+    mediaType : string,
+    publicId?: string,
+    transformation?: Transformation
 ) {
-    const upload = cloudinary.v2.uploader.unsigned_upload(
-        imagePath,
-        uploadPreset,
+    const upload = cloudinary.v2.uploader.upload(
+        mediaPath,
         {
             public_id: publicId,
-            resource_type: "auto",
+            upload_preset : uploadPreset,
+            resource_type: mediaType.match(/image/) ? 'image' : 'video',
+            transformation : {...transformation, crop : "crop"},
+            format : mediaType.match(/image/) ? 'jpg' : 'mp4'
         }
     );
 
     return upload;
-}
-
-export async function uploadBuffer(
-    buffer: any,
-    uploadPreset: any,
-    type :any,
-    publicId?: string
-): Promise<any> {
-    let uploadFromBuffer = (buffer: any) => {
-        return new Promise((resolve, reject) => {
-            let cld_upload_stream = cloudinary.v2.uploader.upload_stream(
-                {
-                    upload_preset: uploadPreset,
-                    public_id : publicId,
-                    resource_type : type.match(/image/) ? "image" : "video",
-                },
-                (error: any, result: any) => {
-                    if (result) {
-                        resolve(result);
-                    } else {
-                        reject(error);
-                    }
-                }
-            );
-
-            streamifier.createReadStream(buffer).pipe(cld_upload_stream);
-        });
-    };
-
-    return await uploadFromBuffer(buffer);
 }
 
 export async function mediaExist(publicId: string): Promise<boolean> {

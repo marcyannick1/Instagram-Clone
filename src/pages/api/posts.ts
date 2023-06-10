@@ -1,7 +1,7 @@
 import formidable from "formidable";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { createPost } from "../../../utils/user";
-import { uploadBuffer, uploadMedia } from "../../../utils/cloudinary";
+import { uploadMedia } from "../../../utils/cloudinary";
 
 export const config = {
     api: {
@@ -25,44 +25,28 @@ export default async function handler(
                     res.status(500).json({ message: "Internal Server Error" });
                     return;
                 }
-                // let paths = [];
+
+                let paths = [];
                 let urls = [];
 
-                // for (const file in files) {
-                //     if (Object.prototype.hasOwnProperty.call(files, file)) {
-                //         const element: any = files[file];
-                //         paths.push(element.filepath);
-                //     }
-                // }
+                for (const file in files) {
+                    if (Object.prototype.hasOwnProperty.call(files, file)) {
+                        const element: any = files[file];
+                        paths.push({path : element.filepath, type : element.mimetype});
+                    }
+                }
 
-                const { loggedInUserId, description, uploadPreset } = fields;
-                const buffers = JSON.parse(fields.buffers as any);
+                const { loggedInUserId, description } = fields;
+                const cropValues = JSON.parse(fields.cropValues as any);
 
                 try {
-                    for (let i = 0; i < buffers.length; i++) {
-                        const buffer = buffers[i];
-                        const media = await uploadBuffer(
-                            Buffer.from(buffer.buffer),
-                            uploadPreset,
-                            buffers[i].type
-                        );
-
-                        // urls.push(media.secure_url);
-
-                        // await createPost(
-                        //     parseInt(loggedInUserId as string),
-                        //     description,
-                        //     urls
-                        // );
-
-                        res.status(200).send(media);
+                    for (let i = 0; i < paths.length; i++) {
+                        const {path, type} = paths[i];
+                        const media = await uploadMedia(path, "Instagram-Clone-Posts", type, undefined, cropValues[i])
+                        urls.push(media.secure_url);
                     }
-                    // for (let i = 0; i < paths.length; i++) {
-                    //     const path = paths[i];
-                    //     const media = await uploadMedia(path, uploadPreset)
-                    //     // const media = await uploadBuffer()
-                    //     urls.push(media.secure_url);
-                    // }
+                    await createPost(parseInt(loggedInUserId as string), description, urls)
+                    res.status(200).send("ok")
                 } catch (error: any) {
                     console.error("Error uploading post:", error);
                     res.status(500).json({ message: "Internal Server Error" });
