@@ -173,10 +173,7 @@ export async function createPost(userId: any, description: any, urls: any) {
     }
 }
 
-export async function createOrDeleteLike(
-    userId: number,
-    postId: number
-): Promise<any> {
+export async function alreadyLiked(userId: number, postId: number){
     const likeCount = await prisma.likes.count({
         where: {
             userId: userId,
@@ -184,7 +181,25 @@ export async function createOrDeleteLike(
         },
     });
 
-    if (likeCount > 0) {
+    return likeCount > 0;
+}
+
+export async function alreadySaved(userId: number, postId: number){
+    const favCount = await prisma.favoris.count({
+        where: {
+            userId: userId,
+            postId: postId,
+        },
+    });
+
+    return favCount > 0;
+}
+
+export async function createOrDeleteLike(
+    userId: number,
+    postId: number
+): Promise<any> {
+    if (await alreadyLiked(userId, postId)) {
         const likeDelete = await prisma.likes.deleteMany({
             where: {
                 userId: userId,
@@ -204,18 +219,12 @@ export async function createOrDeleteLike(
         return likeCreate;
     }
 }
+
 export async function createOrDeleteSaved(
     userId: number,
     postId: number
 ): Promise<any> {
-    const savedCount = await prisma.favoris.count({
-        where: {
-            userId: userId,
-            postId: postId,
-        },
-    });
-
-    if (savedCount > 0) {
+    if (await alreadySaved(userId, postId)) {
         const likeDelete = await prisma.favoris.deleteMany({
             where: {
                 userId: userId,

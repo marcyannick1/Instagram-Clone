@@ -16,7 +16,7 @@ export default async function handler(
     res: NextApiResponse<Data>
 ) {
     if (req.method === "POST") {
-        const form = formidable();
+        const form = formidable({maxFieldsSize : 200 * 1024 * 1024 * 1024});
 
         try {
             form.parse(req, async (err, fields, files) => {
@@ -25,31 +25,28 @@ export default async function handler(
                     res.status(500).json({ message: "Internal Server Error" });
                     return;
                 }
+
                 let paths = [];
                 let urls = [];
 
                 for (const file in files) {
                     if (Object.prototype.hasOwnProperty.call(files, file)) {
                         const element: any = files[file];
-                        paths.push(element.filepath);
+                        paths.push({path : element.filepath, type : element.mimetype});
                     }
                 }
 
-                const { loggedInUserId, description, uploadPreset } = fields;
+                const { loggedInUserId, description } = fields;
+                const cropValues = JSON.parse(fields.cropValues as any);
 
                 try {
                     for (let i = 0; i < paths.length; i++) {
-                        const path = paths[i];
-                        const media = await uploadMedia(path, uploadPreset)
+                        const {path, type} = paths[i];
+                        const media = await uploadMedia(path, "Instagram-Clone-Posts", type, undefined, cropValues[i])
                         urls.push(media.secure_url);
                     }
-
-                    await createPost(
-                        parseInt(loggedInUserId as string),
-                        description,
-                        urls
-                    );
-                    res.status(200).send("ok");
+                    await createPost(parseInt(loggedInUserId as string), description, urls)
+                    res.status(200).send("ok")
                 } catch (error: any) {
                     console.error("Error uploading post:", error);
                     res.status(500).json({ message: "Internal Server Error" });

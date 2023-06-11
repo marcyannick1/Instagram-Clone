@@ -1,5 +1,12 @@
 import cloudinary from "cloudinary";
 
+interface Transformation {
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+}
+
 cloudinary.v2.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
@@ -7,14 +14,22 @@ cloudinary.v2.config({
 });
 
 export async function uploadMedia(
-    imagePath: any,
+    mediaPath: any,
     uploadPreset: any,
-    publicId?: string
+    mediaType : string,
+    publicId?: string,
+    transformation?: Transformation
 ) {
-    const upload = cloudinary.v2.uploader.unsigned_upload(imagePath, uploadPreset, {
-        public_id: publicId,
-        resource_type : 'auto',
-    });
+    const upload = cloudinary.v2.uploader.upload(
+        mediaPath,
+        {
+            public_id: publicId,
+            upload_preset : uploadPreset,
+            resource_type: mediaType.match(/image/) ? 'image' : 'video',
+            transformation : {...transformation, crop : "crop"},
+            format : mediaType.match(/image/) ? 'jpg' : 'mp4'
+        }
+    );
 
     return upload;
 }
@@ -31,10 +46,10 @@ export async function deleteMedia(imagePublicId: string) {
     try {
         const result = await cloudinary.v2.uploader.destroy(imagePublicId);
 
-        if(result){
+        if (result) {
             return result;
         }
-        
+
         if (result.result === "ok") {
             console.log("Image deleted:", imagePublicId);
             return true;

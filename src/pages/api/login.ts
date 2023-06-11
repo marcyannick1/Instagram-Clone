@@ -46,7 +46,7 @@ export default async function handler(
 
             res.status(200).send("vous etes connecté");
         } else {
-            res.status(401).send("email ou mot de passe incorrect");
+            res.status(401).send("E-mail ou mot de passe incorrect, veuillez vérifier.");
         }
     }
 }
