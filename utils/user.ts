@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import axios from "axios";
 
 const prisma = new PrismaClient();
 
@@ -38,6 +37,7 @@ export async function getUserPosts(userId: number): Promise<any> {
 
     return userPosts;
 }
+
 export async function getFollowedUsersPosts(userId: number): Promise<any> {
     const followedUsers = await prisma.user
         .findUnique({
@@ -204,6 +204,7 @@ export async function createOrDeleteLike(
         return likeCreate;
     }
 }
+
 export async function createOrDeleteSaved(
     userId: number,
     postId: number
