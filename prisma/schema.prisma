@@ -30,15 +30,15 @@ model User {
 
 model Suscribtions {
   id            Int  @id @default(autoincrement())
-  suscriber     User @relation("Suscriber", fields: [suscriberId], references: [id])
+  suscriber     User @relation("Suscriber", fields: [suscriberId], references: [id], onDelete: Cascade)
   suscriberId   Int
-  suscriberTo   User @relation("SuscriberTo", fields: [suscriberToId], references: [id])
+  suscriberTo   User @relation("SuscriberTo", fields: [suscriberToId], references: [id], onDelete: Cascade)
   suscriberToId Int
 }
 
 model Posts {
   id          Int        @id @default(autoincrement())
-  user        User       @relation(fields: [userId], references: [id])
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
   date        DateTime?  @default(now()) @db.Timestamp(3)
   description String?
@@ -51,32 +51,32 @@ model Posts {
 model Medias {
   id     Int    @id @default(autoincrement())
   url    String
-  post   Posts  @relation(fields: [postId], references: [id])
+  post   Posts  @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
 }
 
 model Likes {
   id     Int   @id @default(autoincrement())
-  user   User  @relation(fields: [userId], references: [id])
+  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
-  post   Posts @relation(fields: [postId], references: [id])
+  post   Posts @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
 }
 
 model Comments {
   id      Int    @id @default(autoincrement())
   content String
-  user    User   @relation(fields: [userId], references: [id])
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId  Int
-  post    Posts  @relation(fields: [postId], references: [id])
+  post    Posts  @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId  Int
 }
 
 model Favoris {
   id     Int   @id @default(autoincrement())
-  user   User  @relation(fields: [userId], references: [id])
+  user   User  @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId Int
-  post   Posts @relation(fields: [postId], references: [id])
+  post   Posts @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId Int
 }
 
