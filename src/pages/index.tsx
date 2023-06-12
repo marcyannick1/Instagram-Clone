@@ -239,7 +239,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                     width={500}
                                     height={0}
                                     style={{ borderRadius: "4px" }}
-                                    alt="profil pic"
+                                    alt="post"
                                 />
                                 <Flex gap={4}>
                                     {postsLiked[post.id] ? (
