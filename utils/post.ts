@@ -12,6 +12,9 @@ export async function getPostById(postId: number): Promise<Posts>{
             user: true,
             likes: true,
             comments: {
+                orderBy : {
+                    id : "desc"
+                },
                 include : {
                     user: true,
                 }

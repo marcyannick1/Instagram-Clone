@@ -62,6 +62,8 @@ const Post: NextPage<any> = ({ post, loggedInUser, isFollowed }) => {
     const [postCommentLoading, setPostCommentLoading] =
         useState<boolean>(false);
 
+    const [comments, setComments] = useState<any[]>(post.comments);
+
     function handlePostLike(postId: number, action: string) {
         setPostLiked((prev) => !prev);
         setPostLikesCount((prev) => (action === "like" ? prev + 1 : prev - 1));
@@ -124,6 +126,16 @@ const Post: NextPage<any> = ({ post, loggedInUser, isFollowed }) => {
                 },
             })
                 .then(() => {
+                    setComments([
+                        {
+                            id: null,
+                            content: commentInput,
+                            userId: loggedInUser.id,
+                            postId: postId,
+                            user: loggedInUser,
+                        },
+                        ...comments
+                    ]);
                     setCommentInput("");
                 })
                 .finally(() => {
@@ -181,65 +193,68 @@ const Post: NextPage<any> = ({ post, loggedInUser, isFollowed }) => {
                         >
                             {post.user.username}
                         </Link>
-                        {suscribeToHim != null && suscribeToHim ? (
-                            <Flex
-                                role="button"
-                                fontSize=".9em"
-                                color="blackAlpha.500"
-                                fontWeight="medium"
-                                gap={1}
-                                onClick={handleSuscribe}
-                                alignItems="center"
-                            >
-                                <Text color="black">•</Text>{" "}
-                                {suscribeLoading ? (
-                                    <Spinner
-                                        thickness="3px"
-                                        speed="0.75s"
-                                        emptyColor="gray.200"
-                                        color="blue.300"
-                                        size="sm"
-                                        marginLeft={3}
-                                    />
-                                ) : (
-                                    "Suivi(e)"
-                                )}
-                            </Flex>
-                        ) : (
-                            <Flex
-                                role="button"
-                                fontSize=".9em"
-                                color="blue.400"
-                                fontWeight="medium"
-                                gap={1}
-                                onClick={handleSuscribe}
-                                alignItems="center"
-                            >
-                                <Text color="black">•</Text>
-                                {suscribeLoading ? (
-                                    <Spinner
-                                        thickness="3px"
-                                        speed="0.75s"
-                                        emptyColor="gray.200"
-                                        color="blue.300"
-                                        size="sm"
-                                        marginLeft={3}
-                                    />
-                                ) : (
-                                    "Suivre"
-                                )}
-                            </Flex>
-                        )}
+                        {suscribeToHim != null &&
+                            (suscribeToHim ? (
+                                <Flex
+                                    role="button"
+                                    fontSize=".9em"
+                                    color="blackAlpha.500"
+                                    fontWeight="medium"
+                                    gap={1}
+                                    onClick={handleSuscribe}
+                                    alignItems="center"
+                                >
+                                    <Text color="black">•</Text>{" "}
+                                    {suscribeLoading ? (
+                                        <Spinner
+                                            thickness="3px"
+                                            speed="0.75s"
+                                            emptyColor="gray.200"
+                                            color="blue.300"
+                                            size="sm"
+                                            marginLeft={3}
+                                        />
+                                    ) : (
+                                        "Suivi(e)"
+                                    )}
+                                </Flex>
+                            ) : (
+                                <Flex
+                                    role="button"
+                                    fontSize=".9em"
+                                    color="blue.400"
+                                    fontWeight="medium"
+                                    gap={1}
+                                    onClick={handleSuscribe}
+                                    alignItems="center"
+                                >
+                                    <Text color="black">•</Text>
+                                    {suscribeLoading ? (
+                                        <Spinner
+                                            thickness="3px"
+                                            speed="0.75s"
+                                            emptyColor="gray.200"
+                                            color="blue.300"
+                                            size="sm"
+                                            marginLeft={3}
+                                        />
+                                    ) : (
+                                        "Suivre"
+                                    )}
+                                </Flex>
+                            ))}
                     </Flex>
                     <Flex
                         flexDir="column"
                         p={4}
                         borderBottom="1px"
                         borderColor="blackAlpha.200"
-                        height="100%"
+                        height="332px"
+                        overflowY="scroll"
+                        gap={4}
                     >
                         {post.description && (
-                            <Flex gap={3} alignItems="center">
+                            <Flex gap={3} alignItems="center" mb={2}>
                                 <img
                                     width={30}
                                     src={post.user.photo}
@@ -261,7 +276,33 @@ const Post: NextPage<any> = ({ post, loggedInUser, isFollowed }) => {
                                 </Text>
                             </Flex>
                         )}
-                        {post.comments.length <= 0 ? null : (
+                        {post.comments.length > 0 ? (
+                            comments.map((comment, idx) => {
+                                return (
+                                    <Flex gap={3} alignItems="center" key={idx}>
+                                        <img
+                                            width={30}
+                                            src={comment.user.photo}
+                                            style={{
+                                                borderRadius: "50%",
+                                                border: "1px solid gainsboro",
+                                            }}
+                                        />
+                                        <Text>
+                                            <Link
+                                                as={NextLink}
+                                                href={`/profil/${comment.user.username}`}
+                                                fontWeight="medium"
+                                                fontSize=".9em"
+                                            >
+                                                {comment.user.username}
+                                            </Link>{" "}
+                                            {comment.content}
+                                        </Text>
+                                    </Flex>
+                                );
+                            })
+                        ) : (
                             <Flex height="100%" alignItems="center">
                                 <Text
                                     textAlign="center"

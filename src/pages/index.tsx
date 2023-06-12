@@ -307,10 +307,10 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                         {post.description}
                                     </Text>
                                 )}
-                                <Text color="blackAlpha.700">
+                                <Link href={`/post/${post.id}`} target="_blank" color="blackAlpha.700" role="button">
                                     Afficher les {postsCommentsCount[post.id]}{" "}
                                     commentaire(s)
-                                </Text>
+                                </Link>
                                 <form
                                     onSubmit={(e) => {
                                         e.preventDefault();
