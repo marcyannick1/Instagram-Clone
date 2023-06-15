@@ -198,7 +198,7 @@ const Profil: NextPage<Props> = ({
 
             formData.append("loggedInUserId", loggedInUser.id);
             formData.append("loggedInUsername", loggedInUser.username);
-            formData.append("uploadPreset", "Instagram-Clone-Profil-Pic");
+            formData.append("uploadPreset", "Instagram-Clone-Profil-Pic2");
 
             axios({
                 method: "POST",

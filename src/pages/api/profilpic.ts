@@ -49,14 +49,16 @@ export default async function handler(
                     const result = await uploadMedia(
                         image.filepath,
                         uploadPreset,
-                        loggedInUsername as string
+                        image.mimetype,
+                        loggedInUsername as string,
+                        {width : 340, height : 340, crop : "fill"}
                     );
 
                     await uploadProfilPic(
                         parseInt(loggedInUserId as string),
                         result.secure_url
                     );
-                    res.status(200).send("ok ");
+                    res.status(200).send(result);
                 } catch (error) {
                     console.error(
                         "Error uploading image to Cloudinary:",

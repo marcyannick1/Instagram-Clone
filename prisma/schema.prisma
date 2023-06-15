@@ -29,11 +29,12 @@ model User {
 }
 
 model Suscribtions {
-  id            Int  @id @default(autoincrement())
-  suscriber     User @relation("Suscriber", fields: [suscriberId], references: [id])
+  id            Int       @id @default(autoincrement())
+  suscriber     User      @relation("Suscriber", fields: [suscriberId], references: [id])
   suscriberId   Int
-  suscriberTo   User @relation("SuscriberTo", fields: [suscriberToId], references: [id])
+  suscriberTo   User      @relation("SuscriberTo", fields: [suscriberToId], references: [id])
   suscriberToId Int
+  date          DateTime? @default(now()) @db.Timestamp(3)
 }
 
 model Posts {
@@ -56,34 +57,38 @@ model Medias {
 }
 
 model Likes {
-  id     Int   @id @default(autoincrement())
-  user   User  @relation(fields: [userId], references: [id])
+  id     Int       @id @default(autoincrement())
+  user   User      @relation(fields: [userId], references: [id])
   userId Int
-  post   Posts @relation(fields: [postId], references: [id])
+  post   Posts     @relation(fields: [postId], references: [id])
   postId Int
+  date   DateTime? @default(now()) @db.Timestamp(3)
 }
 
 model Comments {
-  id      Int    @id @default(autoincrement())
+  id      Int       @id @default(autoincrement())
   content String
-  user    User   @relation(fields: [userId], references: [id])
+  user    User      @relation(fields: [userId], references: [id])
   userId  Int
-  post    Posts  @relation(fields: [postId], references: [id])
+  post    Posts     @relation(fields: [postId], references: [id])
   postId  Int
+  date    DateTime? @default(now()) @db.Timestamp(3)
 }
 
 model Favoris {
-  id     Int   @id @default(autoincrement())
-  user   User  @relation(fields: [userId], references: [id])
+  id     Int       @id @default(autoincrement())
+  user   User      @relation(fields: [userId], references: [id])
   userId Int
-  post   Posts @relation(fields: [postId], references: [id])
+  post   Posts     @relation(fields: [postId], references: [id])
   postId Int
+  date   DateTime? @default(now()) @db.Timestamp(3)
 }
 
 model Messages {
-  id         Int  @id @default(autoincrement())
-  sender     User @relation("Sender", fields: [senderId], references: [id])
+  id         Int       @id @default(autoincrement())
+  sender     User      @relation("Sender", fields: [senderId], references: [id])
   senderId   Int
-  receiver   User @relation("Receiver", fields: [receiverId], references: [id])
+  receiver   User      @relation("Receiver", fields: [receiverId], references: [id])
   receiverId Int
+  date       DateTime? @default(now()) @db.Timestamp(3)
 }
