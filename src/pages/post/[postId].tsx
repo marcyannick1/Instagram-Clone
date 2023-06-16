@@ -13,6 +13,9 @@ import {
 import NextLink from "next/link";
 import axios from "axios";
 import { useState } from "react";
+import "dayjs/locale/fr";
+import relativeTime from "dayjs/plugin/relativeTime";
+import dayjs from "dayjs";
 
 interface Props {}
 
@@ -48,6 +51,9 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
 const Post: NextPage<any> = ({ post, loggedInUser, isFollowed }) => {
     console.log(post);
+
+    dayjs.locale("fr");
+    dayjs.extend(relativeTime as any);
 
     const [postLiked, setPostLiked] = useState<boolean>(post.liked);
     const [postLikesCount, setPostLikesCount] = useState<number>(
@@ -134,7 +140,7 @@ const Post: NextPage<any> = ({ post, loggedInUser, isFollowed }) => {
                             postId: postId,
                             user: loggedInUser,
                         },
-                        ...comments
+                        ...comments,
                     ]);
                     setCommentInput("");
                 })
@@ -288,17 +294,22 @@ const Post: NextPage<any> = ({ post, loggedInUser, isFollowed }) => {
                                                 border: "1px solid gainsboro",
                                             }}
                                         />
-                                        <Text>
-                                            <Link
-                                                as={NextLink}
-                                                href={`/profil/${comment.user.username}`}
-                                                fontWeight="medium"
-                                                fontSize=".9em"
-                                            >
-                                                {comment.user.username}
-                                            </Link>{" "}
-                                            {comment.content}
-                                        </Text>
+                                        <Flex flexDir="column">
+                                            <Text>
+                                                <Link
+                                                    as={NextLink}
+                                                    href={`/profil/${comment.user.username}`}
+                                                    fontWeight="medium"
+                                                    fontSize=".9em"
+                                                >
+                                                    {comment.user.username}
+                                                </Link>{" "}
+                                                {comment.content}
+                                            </Text>
+                                            <Text fontSize="xs" color="blackAlpha.700">
+                                                {dayjs(comment.date).fromNow()}
+                                            </Text>
+                                        </Flex>
                                     </Flex>
                                 );
                             })
@@ -375,7 +386,7 @@ const Post: NextPage<any> = ({ post, loggedInUser, isFollowed }) => {
                                 {postLikesCount} {"J'aime"}
                             </Text>
                             <Text fontSize="sm" color="blackAlpha.700">
-                                {post.date}
+                                {dayjs(post.date).fromNow()}
                             </Text>
                         </Flex>
                     </Flex>

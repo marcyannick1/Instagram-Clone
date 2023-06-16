@@ -15,6 +15,7 @@ import Image from "next/image";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/fr";
+import MediasSlider from "../../components/mediasSlider";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const token = context.req.cookies.jwt;
@@ -57,6 +58,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default function Home({ loggedInUser, usersFollowedPosts }: any) {
+    console.log(usersFollowedPosts)
     const router = useRouter();
 
     dayjs.locale("fr");
@@ -234,13 +236,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                         • {dayjs(post.date).fromNow(true)}
                                     </Text>
                                 </Flex>
-                                <Image
-                                    src={post.media[0].url}
-                                    width={500}
-                                    height={0}
-                                    style={{ borderRadius: "4px" }}
-                                    alt="post"
-                                />
+                                <MediasSlider medias={post.media}/>
                                 <Flex gap={4}>
                                     {postsLiked[post.id] ? (
                                         <i
