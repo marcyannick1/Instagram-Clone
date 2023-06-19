@@ -52,6 +52,7 @@ model Posts {
 model Medias {
   id     Int    @id @default(autoincrement())
   url    String
+  type   String
   post   Posts  @relation(fields: [postId], references: [id])
   postId Int
 }

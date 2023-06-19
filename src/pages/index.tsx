@@ -15,7 +15,7 @@ import Image from "next/image";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/fr";
-import MediasSlider from "../../components/mediasSlider";
+import MediasSlider from "../../components/MediasSlider";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const token = context.req.cookies.jwt;
@@ -58,7 +58,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default function Home({ loggedInUser, usersFollowedPosts }: any) {
-    console.log(usersFollowedPosts)
     const router = useRouter();
 
     dayjs.locale("fr");

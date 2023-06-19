@@ -177,7 +177,8 @@ export async function createPost(userId: any, description: any, urls: any) {
     for (const url of urls) {
         await prisma.medias.create({
             data: {
-                url: url,
+                url: url.url,
+                type: url.type,
                 postId: post.id,
             },
         });
