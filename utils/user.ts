@@ -39,6 +39,10 @@ export async function getUserPosts(userId: number): Promise<any> {
 }
 
 export async function getFollowedUsersPosts(userId: number): Promise<any> {
+    const currentUser = await prisma.user.findUnique({
+        where: { id: userId },
+    });
+
     const followedUsers = await prisma.user
         .findUnique({
             where: { id: userId },
@@ -47,9 +51,16 @@ export async function getFollowedUsersPosts(userId: number): Promise<any> {
 
     const posts = await prisma.posts.findMany({
         where: {
-            userId: {
-                in: followedUsers?.map((user) => user.suscriberToId),
-            },
+            OR: [
+                {
+                    userId: {
+                        in: followedUsers?.map((user) => user.suscriberToId),
+                    },
+                },
+                {
+                    userId: userId,
+                },
+            ],
         },
         include: {
             media: true,
@@ -166,7 +177,8 @@ export async function createPost(userId: any, description: any, urls: any) {
     for (const url of urls) {
         await prisma.medias.create({
             data: {
-                url: url,
+                url: url.url,
+                type: url.type,
                 postId: post.id,
             },
         });

@@ -15,6 +15,7 @@ import Image from "next/image";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/fr";
+import MediasSlider from "../../components/MediasSlider";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const token = context.req.cookies.jwt;
@@ -234,13 +235,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                         • {dayjs(post.date).fromNow(true)}
                                     </Text>
                                 </Flex>
-                                <Image
-                                    src={post.media[0].url}
-                                    width={500}
-                                    height={0}
-                                    style={{ borderRadius: "4px" }}
-                                    alt="profil pic"
-                                />
+                                <MediasSlider medias={post.media}/>
                                 <Flex gap={4}>
                                     {postsLiked[post.id] ? (
                                         <i
@@ -307,10 +302,10 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                         {post.description}
                                     </Text>
                                 )}
-                                <Text color="blackAlpha.700">
+                                <Link href={`/post/${post.id}`} target="_blank" color="blackAlpha.700" role="button">
                                     Afficher les {postsCommentsCount[post.id]}{" "}
                                     commentaire(s)
-                                </Text>
+                                </Link>
                                 <form
                                     onSubmit={(e) => {
                                         e.preventDefault();

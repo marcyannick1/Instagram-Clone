@@ -1,10 +1,11 @@
 import cloudinary from "cloudinary";
 
 interface Transformation {
-    width: number;
-    height: number;
-    x: number;
-    y: number;
+    width?: number;
+    height?: number;
+    x?: number;
+    y?: number;
+    crop?: string
 }
 
 cloudinary.v2.config({
@@ -26,7 +27,7 @@ export async function uploadMedia(
             public_id: publicId,
             upload_preset : uploadPreset,
             resource_type: mediaType.match(/image/) ? 'image' : 'video',
-            transformation : {...transformation, crop : "crop"},
+            transformation : transformation,
             format : mediaType.match(/image/) ? 'jpg' : 'mp4'
         }
     );

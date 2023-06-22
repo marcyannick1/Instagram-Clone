@@ -755,19 +755,6 @@ export default function PostsForm({
                     </AlertDialogContent>
                 </AlertDialogOverlay>
             </AlertDialog>
-
-            {/* ///////////////////// */}
-            {/* <div>
-                <Heading size="md">Créer une nouvelle publication</Heading>
-                <form>
-                    <Input type="file" multiple onChange={handleMediasChange} />
-                    <Textarea
-                        placeholder="Entrez une légende"
-                        onChange={handleDescChange}
-                    />
-                    <Button onClick={handleMediasUpload}>Publier</Button>
-                </form>
-            </div> */}
         </>
     );
 }

@@ -42,8 +42,8 @@ export default async function handler(
                 try {
                     for (let i = 0; i < paths.length; i++) {
                         const {path, type} = paths[i];
-                        const media = await uploadMedia(path, "Instagram-Clone-Posts", type, undefined, cropValues[i])
-                        urls.push(media.secure_url);
+                        const media = await uploadMedia(path, "Instagram-Clone-Posts", type, undefined, {...cropValues[i], crop:"crop"})
+                        urls.push({url : media.secure_url, type : type});
                     }
                     await createPost(parseInt(loggedInUserId as string), description, urls)
                     res.status(200).send("ok")
