@@ -3,12 +3,7 @@ import { verifyToken } from "../../utils/jwt";
 import { Flex, Link, Text, Input, Spinner } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
-import {
-    alreadyLiked,
-    alreadySaved,
-    getFollowedUsersPosts,
-    getUserDatas,
-} from "../../utils/user";
+import { alreadyLiked, alreadySaved, getFollowedUsersPosts, getUserDatas } from "../../utils/user";
 import { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
 import Image from "next/image";
@@ -30,9 +25,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     } else {
         const user = await verifyToken(token, process.env.JWT_SECRET!);
         const loggedInUser = await getUserDatas(user.id);
-        const usersFollowedPosts = JSON.parse(
-            JSON.stringify(await getFollowedUsersPosts(user.id))
-        );
+        const usersFollowedPosts = JSON.parse(JSON.stringify(await getFollowedUsersPosts(user.id)));
 
         for (const post of usersFollowedPosts) {
             if (await alreadyLiked(loggedInUser.id, post.id)) {
@@ -113,10 +106,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
         setPostsLikesCount((previous: any) => {
             return {
                 ...previous,
-                [postId]:
-                    action === "like"
-                        ? postsLikesCount[postId] + 1
-                        : postsLikesCount[postId] - 1,
+                [postId]: action === "like" ? postsLikesCount[postId] + 1 : postsLikesCount[postId] - 1,
             };
         });
         axios({
@@ -199,16 +189,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                 <div>
                     {usersFollowedPosts.map((post: any, indx: number) => {
                         return (
-                            <Flex
-                                flexDir="column"
-                                key={indx}
-                                py={5}
-                                w={450}
-                                gap={1.5}
-                                margin="auto"
-                                borderBottom="1px"
-                                borderColor="gray.200"
-                            >
+                            <Flex flexDir="column" key={indx} py={5} w={450} gap={1.5} margin="auto" borderBottom="1px" borderColor="gray.200">
                                 <Flex alignItems="center" gap={2}>
                                     <Link href={`profil/${post.user.username}`}>
                                         <Image
@@ -222,20 +203,14 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                             }}
                                         />
                                     </Link>
-                                    <Link
-                                        href={`profil/${post.user.username}`}
-                                        fontWeight="medium"
-                                    >
+                                    <Link href={`profil/${post.user.username}`} fontWeight="medium">
                                         {post.user.username}
                                     </Link>
-                                    <Text
-                                        color="blackAlpha.700"
-                                        fontSize=".9em"
-                                    >
+                                    <Text color="blackAlpha.700" fontSize=".9em">
                                         • {dayjs(post.date).fromNow(true)}
                                     </Text>
                                 </Flex>
-                                <MediasSlider medias={post.media}/>
+                                <MediasSlider medias={post.media} />
                                 <Flex gap={4}>
                                     {postsLiked[post.id] ? (
                                         <i
@@ -244,26 +219,12 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                                 fontSize: "1.4em",
                                                 color: "#ff3040",
                                             }}
-                                            onClick={() =>
-                                                handlePostLike(
-                                                    post.id,
-                                                    "dislike"
-                                                )
-                                            }
+                                            onClick={() => handlePostLike(post.id, "dislike")}
                                         ></i>
                                     ) : (
-                                        <i
-                                            className="fa-regular fa-heart"
-                                            style={{ fontSize: "1.4em" }}
-                                            onClick={() =>
-                                                handlePostLike(post.id, "like")
-                                            }
-                                        ></i>
+                                        <i className="fa-regular fa-heart" style={{ fontSize: "1.4em" }} onClick={() => handlePostLike(post.id, "like")}></i>
                                     )}
-                                    <i
-                                        className="fa-regular fa-comment"
-                                        style={{ fontSize: "1.4em" }}
-                                    ></i>
+                                    <i className="fa-regular fa-comment" style={{ fontSize: "1.4em" }}></i>
                                     {postsSaved[post.id] ? (
                                         <i
                                             className="fa-solid fa-bookmark"
@@ -293,58 +254,31 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                                 </Text>
                                 {post.description && (
                                     <Text>
-                                        <Link
-                                            href={`profil/${post.user.username}`}
-                                            fontWeight="medium"
-                                        >
+                                        <Link href={`profil/${post.user.username}`} fontWeight="medium">
                                             {post.user.username}
                                         </Link>{" "}
                                         {post.description}
                                     </Text>
                                 )}
                                 <Link href={`/post/${post.id}`} target="_blank" color="blackAlpha.700" role="button">
-                                    Afficher les {postsCommentsCount[post.id]}{" "}
-                                    commentaire(s)
+                                    Afficher les {postsCommentsCount[post.id]} commentaire(s)
                                 </Link>
                                 <form
                                     onSubmit={(e) => {
                                         e.preventDefault();
-                                        handlePostComment(
-                                            post.id,
-                                            commentInputs[post.id - 1]
-                                        );
+                                        handlePostComment(post.id, commentInputs[post.id - 1]);
                                     }}
                                     style={{ display: "flex" }}
                                 >
-                                    <Input
-                                        autoComplete="off"
-                                        placeholder="Ajouter un commentaire..."
-                                        onChange={handleCommentInputsChange}
-                                        name={(post.id - 1).toString()}
-                                        value={commentInputs[post.id - 1]}
-                                        variant="ghost"
-                                        padding={0}
-                                        disabled={postCommentLoading[post.id]}
-                                    />
+                                    <Input autoComplete="off" placeholder="Ajouter un commentaire..." onChange={handleCommentInputsChange} name={(post.id - 1).toString()} value={commentInputs[post.id - 1]} variant="ghost" padding={0} disabled={postCommentLoading[post.id]} />
                                     {commentInputs[post.id - 1] &&
                                         (postCommentLoading[post.id] ? (
-                                            <Spinner
-                                                thickness="3px"
-                                                speed="0.75s"
-                                                emptyColor="gray.200"
-                                                color="blue.300"
-                                                size="sm"
-                                            />
+                                            <Spinner thickness="3px" speed="0.75s" emptyColor="gray.200" color="blue.300" size="sm" />
                                         ) : (
                                             <Link
                                                 onClick={(e) => {
                                                     e.preventDefault();
-                                                    handlePostComment(
-                                                        post.id,
-                                                        commentInputs[
-                                                            post.id - 1
-                                                        ]
-                                                    );
+                                                    handlePostComment(post.id, commentInputs[post.id - 1]);
                                                 }}
                                                 fontWeight="medium"
                                                 color="blue.300"

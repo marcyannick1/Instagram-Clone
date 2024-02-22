@@ -7,10 +7,7 @@ const prisma = new PrismaClient();
 
 interface Data {}
 
-export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse<Data>
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     if (req.method === "POST") {
         const email = req.body.email;
         const password = req.body.password;
@@ -27,11 +24,7 @@ export default async function handler(
         };
 
         if (user && user.password === password) {
-            const jwtoken = await generateToken(
-                userData,
-                process.env.JWT_SECRET!,
-                60 * 60 * 60 * 24
-            );
+            const jwtoken = await generateToken(userData, process.env.JWT_SECRET!, 60 * 60 * 60 * 24);
 
             res.setHeader(
                 "Set-Cookie",

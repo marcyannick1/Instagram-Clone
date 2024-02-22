@@ -3,10 +3,7 @@ import cookie from "cookie";
 
 interface Data {}
 
-export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse<Data>
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     if (req.method === "POST") {
         res.setHeader(
             "Set-Cookie",

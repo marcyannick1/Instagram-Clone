@@ -1,23 +1,7 @@
 import { NextPage, GetServerSideProps } from "next";
-import {
-    getFollowersCount,
-    getPostsCount,
-    getSuiviesCount,
-    getUserDatas,
-    getUserIdByUsername,
-    getUserPosts,
-    isFollowed,
-} from "../../../utils/user";
+import { getFollowersCount, getPostsCount, getSuiviesCount, getUserDatas, getUserIdByUsername, getUserPosts, isFollowed } from "../../../utils/user";
 import { verifyToken } from "../../../utils/jwt";
-import {
-    Box,
-    Button,
-    Flex,
-    Input,
-    ListItem,
-    Text,
-    UnorderedList,
-} from "@chakra-ui/react";
+import { Box, Button, Flex, Input, ListItem, Text, UnorderedList } from "@chakra-ui/react";
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -30,9 +14,7 @@ interface Props {}
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
     const token = ctx.req.cookies.jwt;
 
-    const user = token
-        ? await verifyToken(token, process.env.JWT_SECRET!)
-        : null;
+    const user = token ? await verifyToken(token, process.env.JWT_SECRET!) : null;
     const loggedInUser = await getUserDatas(user.id);
 
     const username: any = ctx.query.username;
@@ -40,12 +22,8 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
     const userDatas = await getUserDatas(userId);
 
-    const suscribedToHim: any = loggedInUser
-        ? await isFollowed(loggedInUser.id, userId)
-        : null;
-    const suscribedToMe: any = loggedInUser
-        ? await isFollowed(userId, loggedInUser.id)
-        : null;
+    const suscribedToHim: any = loggedInUser ? await isFollowed(loggedInUser.id, userId) : null;
+    const suscribedToMe: any = loggedInUser ? await isFollowed(userId, loggedInUser.id) : null;
 
     const postsCount = await getPostsCount(userId);
     const followersCount = await getFollowersCount(userId);
@@ -66,16 +44,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
     };
 };
 
-const Profil: NextPage<Props> = ({
-    user,
-    loggedInUser,
-    suscribedToHim,
-    suscribedToMe,
-    postsCount,
-    followersCount,
-    suiviesCount,
-    userPosts,
-}: any) => {
+const Profil: NextPage<Props> = ({ user, loggedInUser, suscribedToHim, suscribedToMe, postsCount, followersCount, suiviesCount, userPosts }: any) => {
     const router = useRouter();
 
     console.log(userPosts);
@@ -83,8 +52,7 @@ const Profil: NextPage<Props> = ({
     const [suscribeToHim, setSuscribedToHim] = useState(suscribedToHim);
     const [suscribeLoading, setSuscribeLoading] = useState(false);
 
-    const [stateFollowersCount, setStateFollowersCount] =
-        useState(followersCount);
+    const [stateFollowersCount, setStateFollowersCount] = useState(followersCount);
 
     function handleSuscribe() {
         setSuscribeLoading(true);
@@ -98,9 +66,7 @@ const Profil: NextPage<Props> = ({
         })
             .then(() => {
                 setSuscribedToHim((previous: any) => !previous);
-                suscribeToHim
-                    ? setStateFollowersCount((previous: any) => previous - 1)
-                    : setStateFollowersCount((previous: any) => previous + 1);
+                suscribeToHim ? setStateFollowersCount((previous: any) => previous - 1) : setStateFollowersCount((previous: any) => previous + 1);
             })
             .finally(() => {
                 setSuscribeLoading(false);
@@ -121,13 +87,7 @@ const Profil: NextPage<Props> = ({
         } else if (!suscribeToHim && !suscribedToMe) {
             Buttons = (
                 <Flex gap={2}>
-                    <Button
-                        minWidth="100px"
-                        size="sm"
-                        colorScheme="twitter"
-                        onClick={handleSuscribe}
-                        isLoading={suscribeLoading}
-                    >
+                    <Button minWidth="100px" size="sm" colorScheme="twitter" onClick={handleSuscribe} isLoading={suscribeLoading}>
                         Suivre
                     </Button>
                     <Button minWidth="100px" size="sm">
@@ -138,14 +98,7 @@ const Profil: NextPage<Props> = ({
         } else if (!suscribeToHim && suscribedToMe) {
             Buttons = (
                 <Flex gap={2}>
-                    <Button
-                        minWidth="100px"
-                        size="sm"
-                        minW="100px"
-                        colorScheme="twitter"
-                        onClick={handleSuscribe}
-                        isLoading={suscribeLoading}
-                    >
+                    <Button minWidth="100px" size="sm" minW="100px" colorScheme="twitter" onClick={handleSuscribe} isLoading={suscribeLoading}>
                         Suivre en retour
                     </Button>
                     <Button minWidth="100px" size="sm">
@@ -153,18 +106,10 @@ const Profil: NextPage<Props> = ({
                     </Button>
                 </Flex>
             );
-        } else if (
-            (suscribeToHim && suscribedToMe) ||
-            (suscribeToHim && !suscribedToMe)
-        ) {
+        } else if ((suscribeToHim && suscribedToMe) || (suscribeToHim && !suscribedToMe)) {
             Buttons = (
                 <Flex gap={2}>
-                    <Button
-                        minWidth="100px"
-                        size="sm"
-                        onClick={handleSuscribe}
-                        isLoading={suscribeLoading}
-                    >
+                    <Button minWidth="100px" size="sm" onClick={handleSuscribe} isLoading={suscribeLoading}>
                         Suivi
                     </Button>
                     <Button minWidth="100px" size="sm">
@@ -176,10 +121,7 @@ const Profil: NextPage<Props> = ({
     } else {
         Buttons = (
             <>
-                <Button
-                    colorScheme="twitter"
-                    onClick={() => router.push("/login")}
-                >
+                <Button colorScheme="twitter" onClick={() => router.push("/login")}>
                     Suivre
                 </Button>
                 <Button>Contacter</Button>
@@ -211,31 +153,15 @@ const Profil: NextPage<Props> = ({
                 .then((res) => {
                     router.reload();
                 })
-                .catch((error) =>
-                    console.error("Error uploading image:", error)
-                );
+                .catch((error) => console.error("Error uploading image:", error));
         }
     };
     return (
         <Layout loggedInUser={loggedInUser}>
             <main style={{ maxWidth: "935px", margin: "auto" }}>
-                <Flex
-                    gap={5}
-                    py={10}
-                    borderBottom="1px"
-                    borderColor="blackAlpha.300"
-                >
+                <Flex gap={5} py={10} borderBottom="1px" borderColor="blackAlpha.300">
                     <Box position="relative" mx={20}>
-                        {imgLoading && (
-                            <Spinner
-                                position="absolute"
-                                top="0"
-                                left="0"
-                                height="100%"
-                                width="100%"
-                                color="gray.300"
-                            />
-                        )}
+                        {imgLoading && <Spinner position="absolute" top="0" left="0" height="100%" width="100%" color="gray.300" />}
                         <Image
                             src={user.photo}
                             width={160}
@@ -249,20 +175,7 @@ const Profil: NextPage<Props> = ({
                         />
                         {loggedInUser && loggedInUser.id == user.id && (
                             <abbr title="Modifier la photo de profil">
-                                <Input
-                                    type="file"
-                                    name="image"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    position="absolute"
-                                    top="0"
-                                    left="0"
-                                    height="100%"
-                                    width="100%"
-                                    opacity={0}
-                                    cursor="pointer"
-                                    borderRadius="50%"
-                                />
+                                <Input type="file" name="image" accept="image/*" onChange={handleImageChange} position="absolute" top="0" left="0" height="100%" width="100%" opacity={0} cursor="pointer" borderRadius="50%" />
                             </abbr>
                         )}
                     </Box>
@@ -273,12 +186,7 @@ const Profil: NextPage<Props> = ({
                             </Text>
                             {Buttons}
                         </Flex>
-                        <UnorderedList
-                            listStyleType="none"
-                            margin={0}
-                            display="flex"
-                            gap={10}
-                        >
+                        <UnorderedList listStyleType="none" margin={0} display="flex" gap={10}>
                             <ListItem>
                                 <Text fontWeight="medium" display="inline">
                                     {postsCount}
@@ -305,30 +213,13 @@ const Profil: NextPage<Props> = ({
                     </Flex>
                 </Flex>
                 <UnorderedList display="flex" justifyContent="center" gap={14}>
-                    <ListItem
-                        fontWeight="medium"
-                        fontSize=".8em"
-                        listStyleType="none"
-                        borderTop="1px"
-                        py={4}
-                    >
-                        <i
-                            className="fa-solid fa-grid"
-                            style={{ marginRight: "10px" }}
-                        ></i>
+                    <ListItem fontWeight="medium" fontSize=".8em" listStyleType="none" borderTop="1px" py={4}>
+                        <i className="fa-solid fa-grid" style={{ marginRight: "10px" }}></i>
                         PUBLICATIONS
                     </ListItem>
                     {loggedInUser && loggedInUser.id == user.id && (
-                        <ListItem
-                            fontWeight="medium"
-                            fontSize=".8em"
-                            listStyleType="none"
-                            py={4}
-                        >
-                            <i
-                                className="fa-regular fa-bookmark"
-                                style={{ marginRight: "10px" }}
-                            ></i>
+                        <ListItem fontWeight="medium" fontSize=".8em" listStyleType="none" py={4}>
+                            <i className="fa-regular fa-bookmark" style={{ marginRight: "10px" }}></i>
                             ENREGISTREMENTS
                         </ListItem>
                     )}

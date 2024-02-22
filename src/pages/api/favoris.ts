@@ -3,10 +3,7 @@ import { createOrDeleteSaved } from "../../../utils/user";
 
 interface Data {}
 
-export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse<Data>
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     if (req.method === "POST") {
         const { userId, postId } = req.body;
 

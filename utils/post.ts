@@ -2,25 +2,25 @@ import { Posts, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export async function getPostById(postId: number): Promise<Posts>{
+export async function getPostById(postId: number): Promise<Posts> {
     const post = await prisma.posts.findUnique({
         where: {
-            id: postId
+            id: postId,
         },
         include: {
             media: true,
             user: true,
             likes: true,
             comments: {
-                orderBy : {
-                    date : "desc"
+                orderBy: {
+                    date: "desc",
                 },
-                include : {
+                include: {
                     user: true,
-                }
+                },
             },
         },
-    })
+    });
 
-    return post!
+    return post!;
 }

@@ -11,12 +11,9 @@ export const config = {
 
 interface Data {}
 
-export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse<Data>
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     if (req.method === "POST") {
-        const form = formidable({maxFieldsSize : 200 * 1024 * 1024 * 1024});
+        const form = formidable({ maxFieldsSize: 200 * 1024 * 1024 * 1024 });
 
         try {
             form.parse(req, async (err, fields, files) => {
@@ -32,7 +29,7 @@ export default async function handler(
                 for (const file in files) {
                     if (Object.prototype.hasOwnProperty.call(files, file)) {
                         const element: any = files[file];
-                        paths.push({path : element.filepath, type : element.mimetype});
+                        paths.push({ path: element.filepath, type: element.mimetype });
                     }
                 }
 
@@ -41,12 +38,12 @@ export default async function handler(
 
                 try {
                     for (let i = 0; i < paths.length; i++) {
-                        const {path, type} = paths[i];
-                        const media = await uploadMedia(path, "Instagram-Clone-Posts", type, undefined, {...cropValues[i], crop:"crop"})
-                        urls.push({url : media.secure_url, type : type});
+                        const { path, type } = paths[i];
+                        const media = await uploadMedia(path, "Instagram-Clone-Posts", type, undefined, { ...cropValues[i], crop: "crop" });
+                        urls.push({ url: media.secure_url, type: type });
                     }
-                    await createPost(parseInt(loggedInUserId as string), description, urls)
-                    res.status(200).send("ok")
+                    await createPost(parseInt(loggedInUserId as string), description, urls);
+                    res.status(200).send("ok");
                 } catch (error: any) {
                     console.error("Error uploading post:", error);
                     res.status(500).json({ message: "Internal Server Error" });

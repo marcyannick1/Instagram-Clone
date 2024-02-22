@@ -106,10 +106,7 @@ export async function getSuiviesCount(userId: number): Promise<number> {
     return followersCount;
 }
 
-export async function isFollowed(
-    suscriberId: number,
-    suscriberToId: number
-): Promise<any> {
+export async function isFollowed(suscriberId: number, suscriberToId: number): Promise<any> {
     const bool = await prisma.suscribtions.count({
         where: {
             AND: [
@@ -124,10 +121,7 @@ export async function isFollowed(
     return bool !== 0;
 }
 
-export async function createSuscribtion(
-    suscriberId: number,
-    suscriberToId: number
-): Promise<any> {
+export async function createSuscribtion(suscriberId: number, suscriberToId: number): Promise<any> {
     const subscribtion = await prisma.suscribtions.create({
         data: {
             suscriberId: suscriberId,
@@ -138,10 +132,7 @@ export async function createSuscribtion(
     return subscribtion;
 }
 
-export async function deleteSuscribtion(
-    suscriberId: number,
-    suscriberToId: number
-): Promise<any> {
+export async function deleteSuscribtion(suscriberId: number, suscriberToId: number): Promise<any> {
     const subscribtionDel = await prisma.suscribtions.deleteMany({
         where: {
             suscriberId: suscriberId,
@@ -185,7 +176,7 @@ export async function createPost(userId: any, description: any, urls: any) {
     }
 }
 
-export async function alreadyLiked(userId: number, postId: number){
+export async function alreadyLiked(userId: number, postId: number) {
     const likeCount = await prisma.likes.count({
         where: {
             userId: userId,
@@ -196,7 +187,7 @@ export async function alreadyLiked(userId: number, postId: number){
     return likeCount > 0;
 }
 
-export async function alreadySaved(userId: number, postId: number){
+export async function alreadySaved(userId: number, postId: number) {
     const favCount = await prisma.favoris.count({
         where: {
             userId: userId,
@@ -207,10 +198,7 @@ export async function alreadySaved(userId: number, postId: number){
     return favCount > 0;
 }
 
-export async function createOrDeleteLike(
-    userId: number,
-    postId: number
-): Promise<any> {
+export async function createOrDeleteLike(userId: number, postId: number): Promise<any> {
     if (await alreadyLiked(userId, postId)) {
         const likeDelete = await prisma.likes.deleteMany({
             where: {
@@ -232,10 +220,7 @@ export async function createOrDeleteLike(
     }
 }
 
-export async function createOrDeleteSaved(
-    userId: number,
-    postId: number
-): Promise<any> {
+export async function createOrDeleteSaved(userId: number, postId: number): Promise<any> {
     if (await alreadySaved(userId, postId)) {
         const likeDelete = await prisma.favoris.deleteMany({
             where: {
@@ -257,11 +242,7 @@ export async function createOrDeleteSaved(
     }
 }
 
-export async function createComment(
-    userId: number,
-    postId: number,
-    content: string
-): Promise<any> {
+export async function createComment(userId: number, postId: number, content: string): Promise<any> {
     const comment = await prisma.comments.create({
         data: {
             userId: userId,

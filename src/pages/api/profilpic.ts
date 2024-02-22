@@ -1,10 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import formidable from "formidable";
-import {
-    deleteMedia,
-    mediaExist,
-    uploadMedia,
-} from "../../../utils/cloudinary";
+import { deleteMedia, mediaExist, uploadMedia } from "../../../utils/cloudinary";
 import { uploadProfilPic } from "../../../utils/user";
 
 export const config = {
@@ -15,10 +11,7 @@ export const config = {
 
 interface Data {}
 
-export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse<Data>
-) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     if (req.method === "POST") {
         const form = formidable();
 
@@ -32,38 +25,19 @@ export default async function handler(
 
                 const { image }: any = files;
 
-                const { loggedInUserId, loggedInUsername, uploadPreset } =
-                    fields;
+                const { loggedInUserId, loggedInUsername, uploadPreset } = fields;
 
                 try {
-                    if (
-                        await mediaExist(
-                            `Instagram-Clone/profil/${loggedInUsername}`
-                        )
-                    ) {
-                        await deleteMedia(
-                            `Instagram-Clone/profil/${loggedInUsername}`
-                        );
+                    if (await mediaExist(`Instagram-Clone/profil/${loggedInUsername}`)) {
+                        await deleteMedia(`Instagram-Clone/profil/${loggedInUsername}`);
                     }
 
-                    const result = await uploadMedia(
-                        image.filepath,
-                        uploadPreset,
-                        image.mimetype,
-                        loggedInUsername as string,
-                        {width : 340, height : 340, crop : "fill"}
-                    );
+                    const result = await uploadMedia(image.filepath, uploadPreset, image.mimetype, loggedInUsername as string, { width: 340, height: 340, crop: "fill" });
 
-                    await uploadProfilPic(
-                        parseInt(loggedInUserId as string),
-                        result.secure_url
-                    );
+                    await uploadProfilPic(parseInt(loggedInUserId as string), result.secure_url);
                     res.status(200).send(result);
                 } catch (error) {
-                    console.error(
-                        "Error uploading image to Cloudinary:",
-                        error
-                    );
+                    console.error("Error uploading image to Cloudinary:", error);
                     res.status(500).json({ message: "Internal Server Error" });
                 }
             });
