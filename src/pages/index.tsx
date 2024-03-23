@@ -1,16 +1,13 @@
 import { GetServerSideProps } from "next/types";
 import { verifyToken } from "../../utils/jwt";
-import { Flex, Link, Text, Input, Spinner } from "@chakra-ui/react";
+import { Box, Link, } from "@chakra-ui/react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { alreadyLiked, alreadySaved, getFollowedUsersPosts, getUserDatas } from "../../utils/user";
 import { useEffect, useState } from "react";
 import Layout from "../../components/Layout";
-import Image from "next/image";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/fr";
-import MediasSlider from "../../components/MediasSlider";
+import Post from "../../components/Home/Post";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
     const token = context.req.cookies.jwt;
@@ -51,10 +48,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default function Home({ loggedInUser, usersFollowedPosts }: any) {
-    const router = useRouter();
+    console.log(usersFollowedPosts)
 
-    dayjs.locale("fr");
-    dayjs.extend(relativeTime as any);
+    const router = useRouter();
 
     const [commentInputs, setCommentInputs] = useState<string[]>([]);
     const [postsSaved, setPostsSaved] = useState<any>({});
@@ -85,7 +81,7 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
                 return { ...previous, [post.id]: false };
             });
         }
-    }, []);
+    }, [usersFollowedPosts])
 
     function Logout() {
         axios({
@@ -186,115 +182,13 @@ export default function Home({ loggedInUser, usersFollowedPosts }: any) {
         <Layout loggedInUser={loggedInUser}>
             <Link onClick={Logout}>Se déconnecter</Link>
             <main>
-                <div>
+                <Box>
                     {usersFollowedPosts.map((post: any, indx: number) => {
                         return (
-                            <Flex flexDir="column" key={indx} py={5} w={450} gap={1.5} margin="auto" borderBottom="1px" borderColor="gray.200">
-                                <Flex alignItems="center" gap={2}>
-                                    <Link href={`profil/${post.user.username}`}>
-                                        <Image
-                                            src={post.user.photo}
-                                            alt={""}
-                                            width="30"
-                                            height="30"
-                                            style={{
-                                                borderRadius: "50%",
-                                                border: "1px solid gainsboro",
-                                            }}
-                                        />
-                                    </Link>
-                                    <Link href={`profil/${post.user.username}`} fontWeight="medium">
-                                        {post.user.username}
-                                    </Link>
-                                    <Text color="blackAlpha.700" fontSize=".9em">
-                                        • {dayjs(post.date).fromNow(true)}
-                                    </Text>
-                                </Flex>
-                                <MediasSlider medias={post.media} />
-                                <Flex gap={4}>
-                                    {postsLiked[post.id] ? (
-                                        <i
-                                            className="fa-solid fa-heart"
-                                            style={{
-                                                fontSize: "1.4em",
-                                                color: "#ff3040",
-                                            }}
-                                            onClick={() => handlePostLike(post.id, "dislike")}
-                                        ></i>
-                                    ) : (
-                                        <i className="fa-regular fa-heart" style={{ fontSize: "1.4em" }} onClick={() => handlePostLike(post.id, "like")}></i>
-                                    )}
-                                    <i className="fa-regular fa-comment" style={{ fontSize: "1.4em" }}></i>
-                                    {postsSaved[post.id] ? (
-                                        <i
-                                            className="fa-solid fa-bookmark"
-                                            style={{
-                                                fontSize: "1.4em",
-                                                marginLeft: "auto",
-                                            }}
-                                            onClick={() => {
-                                                handlePostSave(post.id);
-                                            }}
-                                        ></i>
-                                    ) : (
-                                        <i
-                                            className="fa-regular fa-bookmark"
-                                            style={{
-                                                fontSize: "1.4em",
-                                                marginLeft: "auto",
-                                            }}
-                                            onClick={() => {
-                                                handlePostSave(post.id);
-                                            }}
-                                        ></i>
-                                    )}
-                                </Flex>
-                                <Text fontWeight="medium">
-                                    {postsLikesCount[post.id]} {"J'aime"}
-                                </Text>
-                                {post.description && (
-                                    <Text>
-                                        <Link href={`profil/${post.user.username}`} fontWeight="medium">
-                                            {post.user.username}
-                                        </Link>{" "}
-                                        {post.description}
-                                    </Text>
-                                )}
-                                <Link href={`/post/${post.id}`} target="_blank" color="blackAlpha.700" role="button">
-                                    Afficher les {postsCommentsCount[post.id]} commentaire(s)
-                                </Link>
-                                <form
-                                    onSubmit={(e) => {
-                                        e.preventDefault();
-                                        handlePostComment(post.id, commentInputs[post.id - 1]);
-                                    }}
-                                    style={{ display: "flex" }}
-                                >
-                                    <Input autoComplete="off" placeholder="Ajouter un commentaire..." onChange={handleCommentInputsChange} name={(post.id - 1).toString()} value={commentInputs[post.id - 1]} variant="ghost" padding={0} disabled={postCommentLoading[post.id]} />
-                                    {commentInputs[post.id - 1] &&
-                                        (postCommentLoading[post.id] ? (
-                                            <Spinner thickness="3px" speed="0.75s" emptyColor="gray.200" color="blue.300" size="sm" />
-                                        ) : (
-                                            <Link
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    handlePostComment(post.id, commentInputs[post.id - 1]);
-                                                }}
-                                                fontWeight="medium"
-                                                color="blue.300"
-                                                _hover={{ color: "blue.600" }}
-                                                style={{
-                                                    textDecoration: "none",
-                                                }}
-                                            >
-                                                Publier
-                                            </Link>
-                                        ))}
-                                </form>
-                            </Flex>
-                        );
+                            <Post post={post} key={indx}/>
+                        )
                     })}
-                </div>
+                </Box>
             </main>
         </Layout>
     );

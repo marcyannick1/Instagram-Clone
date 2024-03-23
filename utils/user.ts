@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Comments, Likes, Medias, Posts, Prisma, PrismaClient, Suscribtions, User } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -15,17 +15,17 @@ export async function getUserIdByUsername(username: string): Promise<number> {
     return user!.id;
 }
 
-export async function getUserDatas(userId: number): Promise<any> {
-    const userDatas = await prisma.user.findUnique({
+export async function getUserDatas(userId: number): Promise<User> {
+    const user = await prisma.user.findUnique({
         where: {
             id: userId,
         },
     });
 
-    return userDatas;
+    return user!;
 }
 
-export async function getUserPosts(userId: number): Promise<any> {
+export async function getUserPosts(userId: number): Promise<Posts[]> {
     const userPosts = await prisma.posts.findMany({
         where: {
             userId: userId,
@@ -38,11 +38,7 @@ export async function getUserPosts(userId: number): Promise<any> {
     return userPosts;
 }
 
-export async function getFollowedUsersPosts(userId: number): Promise<any> {
-    const currentUser = await prisma.user.findUnique({
-        where: { id: userId },
-    });
-
+export async function getFollowedUsersPosts(userId: number): Promise<Posts[]> {
     const followedUsers = await prisma.user
         .findUnique({
             where: { id: userId },
@@ -106,8 +102,8 @@ export async function getSuiviesCount(userId: number): Promise<number> {
     return followersCount;
 }
 
-export async function isFollowed(suscriberId: number, suscriberToId: number): Promise<any> {
-    const bool = await prisma.suscribtions.count({
+export async function isFollowed(suscriberId: number, suscriberToId: number): Promise<boolean> {
+    const subscription = await prisma.suscribtions.count({
         where: {
             AND: [
                 {
@@ -118,10 +114,10 @@ export async function isFollowed(suscriberId: number, suscriberToId: number): Pr
         },
     });
 
-    return bool !== 0;
+    return subscription !== 0;
 }
 
-export async function createSuscribtion(suscriberId: number, suscriberToId: number): Promise<any> {
+export async function createSuscribtion(suscriberId: number, suscriberToId: number): Promise<Suscribtions> {
     const subscribtion = await prisma.suscribtions.create({
         data: {
             suscriberId: suscriberId,
@@ -132,7 +128,7 @@ export async function createSuscribtion(suscriberId: number, suscriberToId: numb
     return subscribtion;
 }
 
-export async function deleteSuscribtion(suscriberId: number, suscriberToId: number): Promise<any> {
+export async function deleteSuscribtion(suscriberId: number, suscriberToId: number): Promise<Prisma.BatchPayload> {
     const subscribtionDel = await prisma.suscribtions.deleteMany({
         where: {
             suscriberId: suscriberId,
@@ -143,8 +139,8 @@ export async function deleteSuscribtion(suscriberId: number, suscriberToId: numb
     return subscribtionDel;
 }
 
-export async function uploadProfilPic(loggedInUserId: any, url: any) {
-    const photo = await prisma.user.update({
+export async function uploadProfilPic(loggedInUserId: number, url: any): Promise<void> {
+    await prisma.user.update({
         where: {
             id: loggedInUserId,
         },
@@ -152,12 +148,10 @@ export async function uploadProfilPic(loggedInUserId: any, url: any) {
             photo: url,
         },
     });
-
-    return photo;
 }
 
-export async function createPost(userId: any, description: any, urls: any) {
-    const post: any = await prisma.posts.create({
+export async function createPost(userId: number, description: string, urls: Medias[]): Promise<void> {
+    const post = await prisma.posts.create({
         data: {
             userId: userId,
             date: new Date(Date.now()),
@@ -176,7 +170,7 @@ export async function createPost(userId: any, description: any, urls: any) {
     }
 }
 
-export async function alreadyLiked(userId: number, postId: number) {
+export async function alreadyLiked(userId: number, postId: number): Promise<boolean> {
     const likeCount = await prisma.likes.count({
         where: {
             userId: userId,
@@ -187,7 +181,7 @@ export async function alreadyLiked(userId: number, postId: number) {
     return likeCount > 0;
 }
 
-export async function alreadySaved(userId: number, postId: number) {
+export async function alreadySaved(userId: number, postId: number): Promise<boolean> {
     const favCount = await prisma.favoris.count({
         where: {
             userId: userId,
@@ -198,7 +192,7 @@ export async function alreadySaved(userId: number, postId: number) {
     return favCount > 0;
 }
 
-export async function createOrDeleteLike(userId: number, postId: number): Promise<any> {
+export async function createOrDeleteLike(userId: number, postId: number): Promise<Likes | Prisma.BatchPayload> {
     if (await alreadyLiked(userId, postId)) {
         const likeDelete = await prisma.likes.deleteMany({
             where: {
@@ -220,7 +214,7 @@ export async function createOrDeleteLike(userId: number, postId: number): Promis
     }
 }
 
-export async function createOrDeleteSaved(userId: number, postId: number): Promise<any> {
+export async function createOrDeleteSaved(userId: number, postId: number): Promise<Promise<Likes | Prisma.BatchPayload>> {
     if (await alreadySaved(userId, postId)) {
         const likeDelete = await prisma.favoris.deleteMany({
             where: {
@@ -242,7 +236,7 @@ export async function createOrDeleteSaved(userId: number, postId: number): Promi
     }
 }
 
-export async function createComment(userId: number, postId: number, content: string): Promise<any> {
+export async function createComment(userId: number, postId: number, content: string): Promise<Comments> {
     const comment = await prisma.comments.create({
         data: {
             userId: userId,
