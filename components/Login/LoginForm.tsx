@@ -37,23 +37,8 @@ function LoginForm() {
 
     return (
         <Center flexDir="column" h="100vh" textAlign="center">
-            <Center
-                border="1px"
-                borderColor="gray.300"
-                px={10}
-                py={5}
-                width={380}
-                display="flex"
-                flexDir="column"
-                mb={2}
-                rounded={2}
-            >
-                <img
-                    src="logo.png"
-                    alt=""
-                    width={180}
-                    style={{ padding: "35px 0" }}
-                />
+            <Center border="1px" borderColor="gray.300" px={10} py={5} width={380} display="flex" flexDir="column" mb={2} rounded={2}>
+                <img src="logo.png" alt="" width={180} style={{ padding: "35px 0" }} />
                 <form onSubmit={Login}>
                     <Input
                         type="email"
@@ -86,22 +71,10 @@ function LoginForm() {
                     </Link>
                 </form>
             </Center>
-            <Box
-                border="1px"
-                borderColor="gray.300"
-                px={10}
-                py={5}
-                width={380}
-                rounded={2}
-            >
+            <Box border="1px" borderColor="gray.300" px={10} py={5} width={380} rounded={2}>
                 <Text>
                     {"Vous n'avez pas de compte ? "}
-                    <Link
-                        as={NextLink}
-                        href="register"
-                        color="blue.400"
-                        fontWeight="medium"
-                    >
+                    <Link as={NextLink} href="register" color="blue.400" fontWeight="medium">
                         Inscrivez-vous
                     </Link>
                 </Text>

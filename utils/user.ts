@@ -1,4 +1,4 @@
-import { Comments, Likes, Medias, Posts, Prisma, PrismaClient, Suscribtions, User } from "@prisma/client";
+import { Comments, Likes, Posts, Prisma, PrismaClient, Suscribtions, User } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -23,53 +23,6 @@ export async function getUserDatas(userId: number): Promise<User> {
     });
 
     return user!;
-}
-
-export async function getUserPosts(userId: number): Promise<Posts[]> {
-    const userPosts = await prisma.posts.findMany({
-        where: {
-            userId: userId,
-        },
-        include: {
-            media: true,
-        },
-    });
-
-    return userPosts;
-}
-
-export async function getFollowedUsersPosts(userId: number): Promise<Posts[]> {
-    const followedUsers = await prisma.user
-        .findUnique({
-            where: { id: userId },
-        })
-        .suivies();
-
-    const posts = await prisma.posts.findMany({
-        where: {
-            OR: [
-                {
-                    userId: {
-                        in: followedUsers?.map((user) => user.suscriberToId),
-                    },
-                },
-                {
-                    userId: userId,
-                },
-            ],
-        },
-        include: {
-            media: true,
-            user: true,
-            likes: true,
-            comments: true,
-        },
-        orderBy: {
-            date: "desc",
-        },
-    });
-
-    return posts;
 }
 
 export async function getPostsCount(userId: number): Promise<number> {
@@ -148,92 +101,6 @@ export async function uploadProfilPic(loggedInUserId: number, url: any): Promise
             photo: url,
         },
     });
-}
-
-export async function createPost(userId: number, description: string, urls: Medias[]): Promise<void> {
-    const post = await prisma.posts.create({
-        data: {
-            userId: userId,
-            date: new Date(Date.now()),
-            description: description,
-        },
-    });
-
-    for (const url of urls) {
-        await prisma.medias.create({
-            data: {
-                url: url.url,
-                type: url.type,
-                postId: post.id,
-            },
-        });
-    }
-}
-
-export async function alreadyLiked(userId: number, postId: number): Promise<boolean> {
-    const likeCount = await prisma.likes.count({
-        where: {
-            userId: userId,
-            postId: postId,
-        },
-    });
-
-    return likeCount > 0;
-}
-
-export async function alreadySaved(userId: number, postId: number): Promise<boolean> {
-    const favCount = await prisma.favoris.count({
-        where: {
-            userId: userId,
-            postId: postId,
-        },
-    });
-
-    return favCount > 0;
-}
-
-export async function createOrDeleteLike(userId: number, postId: number): Promise<Likes | Prisma.BatchPayload> {
-    if (await alreadyLiked(userId, postId)) {
-        const likeDelete = await prisma.likes.deleteMany({
-            where: {
-                userId: userId,
-                postId: postId,
-            },
-        });
-
-        return likeDelete;
-    } else {
-        const likeCreate = await prisma.likes.create({
-            data: {
-                userId: userId,
-                postId: postId,
-            },
-        });
-
-        return likeCreate;
-    }
-}
-
-export async function createOrDeleteSaved(userId: number, postId: number): Promise<Promise<Likes | Prisma.BatchPayload>> {
-    if (await alreadySaved(userId, postId)) {
-        const likeDelete = await prisma.favoris.deleteMany({
-            where: {
-                userId: userId,
-                postId: postId,
-            },
-        });
-
-        return likeDelete;
-    } else {
-        const savedCreate = await prisma.favoris.create({
-            data: {
-                userId: userId,
-                postId: postId,
-            },
-        });
-
-        return savedCreate;
-    }
 }
 
 export async function createComment(userId: number, postId: number, content: string): Promise<Comments> {

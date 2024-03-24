@@ -1,15 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { createOrDeleteLike } from "../../../utils/user";
+import { createComment } from "../../../../utils/user";
 
 interface Data {}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     if (req.method === "POST") {
-        const { userId, postId } = req.body;
+        const { userId, postId, content } = req.body;
 
         try {
-            const like = await createOrDeleteLike(userId, postId);
-            res.status(200).send(like);
+            const comment = await createComment(userId, postId, content);
+            res.status(200).send(comment);
         } catch (error) {
             res.status(400).send("error");
             console.log(error);

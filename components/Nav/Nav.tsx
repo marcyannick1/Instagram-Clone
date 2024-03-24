@@ -19,14 +19,7 @@ export default function Nav({ loggedInUser }: any) {
     };
     return (
         <Flex h="100vh" position="fixed" zIndex={10}>
-            <Flex
-                flexDir="column"
-                width={245}
-                borderRight="1px"
-                borderColor="gray.300"
-                p={3}
-                backgroundColor="white"
-            >
+            <Flex flexDir="column" width={245} borderRight="1px" borderColor="gray.300" p={3} backgroundColor="white">
                 <Image
                     src="/logo.png"
                     alt="logo"
@@ -35,7 +28,7 @@ export default function Nav({ loggedInUser }: any) {
                     style={{
                         paddingLeft: ".75rem",
                         margin: "30px 0",
-                        cursor: "pointer"
+                        cursor: "pointer",
                     }}
                     onClick={() => router.push("/")}
                 />
@@ -47,27 +40,10 @@ export default function Nav({ loggedInUser }: any) {
                             gap={2}
                             size="lg"
                             fontSize="1em"
-                            fontWeight={
-                                router.pathname === "/" &&
-                                !showNotifsTab &&
-                                !showSearchTab
-                                    ? "bold"
-                                    : "normal"
-                            }
+                            fontWeight={router.pathname === "/" && !showNotifsTab && !showSearchTab ? "bold" : "normal"}
                             px={3}
                             w="full"
-                            leftIcon={
-                                <i
-                                    className={`${
-                                        router.pathname === "/" &&
-                                        !showNotifsTab &&
-                                        !showSearchTab
-                                            ? "fa-solid"
-                                            : "fa-regular"
-                                    } fa-house-blank`}
-                                    style={iconStyle}
-                                ></i>
-                            }
+                            leftIcon={<i className={`${router.pathname === "/" && !showNotifsTab && !showSearchTab ? "fa-solid" : "fa-regular"} fa-house-blank`} style={iconStyle}></i>}
                         >
                             Accueil
                         </Button>
@@ -91,16 +67,7 @@ export default function Nav({ loggedInUser }: any) {
                             fontWeight={showSearchTab ? "bold" : "normal"}
                             px={3}
                             w="full"
-                            leftIcon={
-                                <i
-                                    className={`${
-                                        showSearchTab
-                                            ? "fa-solid"
-                                            : "fa-regular"
-                                    } fa-magnifying-glass`}
-                                    style={iconStyle}
-                                ></i>
-                            }
+                            leftIcon={<i className={`${showSearchTab ? "fa-solid" : "fa-regular"} fa-magnifying-glass`} style={iconStyle}></i>}
                         >
                             Recherche
                         </Button>
@@ -115,12 +82,7 @@ export default function Nav({ loggedInUser }: any) {
                             fontWeight="normal"
                             px={3}
                             w="full"
-                            leftIcon={
-                                <i
-                                    className="fa-regular fa-paper-plane"
-                                    style={iconStyle}
-                                ></i>
-                            }
+                            leftIcon={<i className="fa-regular fa-paper-plane" style={iconStyle}></i>}
                         >
                             Messages
                         </Button>
@@ -144,16 +106,7 @@ export default function Nav({ loggedInUser }: any) {
                             fontWeight={showNotifsTab ? "bold" : "normal"}
                             px={3}
                             w="full"
-                            leftIcon={
-                                <i
-                                    className={`${
-                                        showNotifsTab
-                                            ? "fa-solid"
-                                            : "fa-regular"
-                                    } fa-heart`}
-                                    style={iconStyle}
-                                ></i>
-                            }
+                            leftIcon={<i className={`${showNotifsTab ? "fa-solid" : "fa-regular"} fa-heart`} style={iconStyle}></i>}
                         >
                             Notifications
                         </Button>
@@ -176,40 +129,19 @@ export default function Nav({ loggedInUser }: any) {
                             fontWeight={showPostsFormTab ? "bold" : "normal"}
                             px={3}
                             w="full"
-                            leftIcon={
-                                <i
-                                    className={`${
-                                        showPostsFormTab
-                                            ? "fa-solid"
-                                            : "fa-regular"
-                                    } fa-square-plus`}
-                                    style={iconStyle}
-                                ></i>
-                            }
+                            leftIcon={<i className={`${showPostsFormTab ? "fa-solid" : "fa-regular"} fa-square-plus`} style={iconStyle}></i>}
                         >
                             Créer
                         </Button>
                     </Link>
-                    <Link
-                        as={NextLink}
-                        href={`/profil/${loggedInUser.username}`}
-                        w="full"
-                    >
+                    <Link as={NextLink} href={`/profil/${loggedInUser.username}`} w="full">
                         <Button
                             variant="ghost"
                             justifyContent="start"
                             gap={2}
                             size="lg"
                             fontSize="1em"
-                            fontWeight={
-                                router.pathname === "/profil/[username]" &&
-                                router.query.username ===
-                                    loggedInUser.username &&
-                                !showNotifsTab &&
-                                !showSearchTab
-                                    ? "bold"
-                                    : "normal"
-                            }
+                            fontWeight={router.pathname === "/profil/[username]" && router.query.username === loggedInUser.username && !showNotifsTab && !showSearchTab ? "bold" : "normal"}
                             px={3}
                             w="full"
                             leftIcon={
@@ -221,12 +153,7 @@ export default function Nav({ loggedInUser }: any) {
                                     style={{
                                         borderRadius: "50%",
                                         border:
-                                            router.pathname ===
-                                                "/profil/[username]" &&
-                                            router.query.username ===
-                                                loggedInUser.username &&
-                                            !showNotifsTab &&
-                                            !showSearchTab
+                                            router.pathname === "/profil/[username]" && router.query.username === loggedInUser.username && !showNotifsTab && !showSearchTab
                                                 ? "3px solid black"
                                                 : "1px solid gainsboro",
                                     }}
@@ -246,20 +173,14 @@ export default function Nav({ loggedInUser }: any) {
                     fontSize="1em"
                     fontWeight="normal"
                     px={3}
-                    leftIcon={
-                        <i className="fa-regular fa-bars" style={iconStyle}></i>
-                    }
+                    leftIcon={<i className="fa-regular fa-bars" style={iconStyle}></i>}
                 >
                     Plus
                 </Button>
             </Flex>
             {showSearchTab && <Search />}
             {showNotifsTab && <Notifs />}
-            <PostsForm
-                loggedInUser={loggedInUser}
-                modalIsOpen={showPostsFormTab}
-                setModalIsOpen={setShowPostsFormTab}
-            />
+            <PostsForm loggedInUser={loggedInUser} modalIsOpen={showPostsFormTab} setModalIsOpen={setShowPostsFormTab} />
         </Flex>
     );
 }

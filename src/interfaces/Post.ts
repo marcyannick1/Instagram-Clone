@@ -4,8 +4,13 @@ export interface IPost{
     id: number
     user: User
     date: Date
-    media: string
+    media: IPostMedia[]
     description: string
-    likes: Likes
-    comments: Comments
+    likes: Likes[]
+    comments: Comments[]
+}
+
+export interface IPostMedia{
+    type: string
+    url: string
 }

@@ -1,7 +1,8 @@
 import formidable from "formidable";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { createPost } from "../../../utils/user";
-import { uploadMedia } from "../../../utils/cloudinary";
+import { createPost, getFollowedUsersPosts } from "../../../../utils/post";
+import { uploadMedia } from "../../../../utils/cloudinary";
+import { verifyToken } from "../../../../utils/jwt";
 
 export const config = {
     api: {
@@ -42,7 +43,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
                         const media = await uploadMedia(path, "Instagram-Clone-Posts", type, undefined, { ...cropValues[i], crop: "crop" });
                         urls.push({ url: media.secure_url, type: type });
                     }
-                    await createPost(parseInt(loggedInUserId as string), description, urls);
+                    await createPost(parseInt(loggedInUserId as string), description as string, urls);
                     res.status(200).send("ok");
                 } catch (error: any) {
                     console.error("Error uploading post:", error);
@@ -51,6 +52,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
             });
         } catch (error: any) {
             console.error("Error parsing form data:", error);
+            res.status(500).json({ message: "Internal Server Error" });
+        }
+    }else if(req.method === "GET"){
+        const jwt = req.cookies.jwt
+        const user = await verifyToken(jwt, process.env.JWT_SECRET!)
+
+        try {
+            const usersFollowedPosts = await getFollowedUsersPosts(user.id)
+            res.status(200).send(usersFollowedPosts)
+        } catch (error) {
             res.status(500).json({ message: "Internal Server Error" });
         }
     }
